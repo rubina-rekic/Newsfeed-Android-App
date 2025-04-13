@@ -1,4 +1,4 @@
-package ba.etfrma.newsfeedapp.screen
+package etf.ri.rma.newsfeedapp.screen
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*

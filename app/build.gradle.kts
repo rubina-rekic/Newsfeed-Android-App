@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "ba.etfrma.newsfeedapp"
+    namespace = "etf.ri.rma.newsfeedapp"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "ba.etfrma.newsfeedapp"
+        applicationId = "etf.ri.rma.newsfeedapp"
         minSdk = 31
         targetSdk = 35
         versionCode = 1

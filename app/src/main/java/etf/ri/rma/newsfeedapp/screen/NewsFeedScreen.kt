@@ -1,14 +1,11 @@
-package ba.etfrma.newsfeedapp.screen
+package etf.ri.rma.newsfeedapp.screen
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import ba.etfrma.newsfeedapp.data.NewsData
-import ba.etfrma.newsfeedapp.model.NewsItem
+import etf.ri.rma.newsfeedapp.data.NewsData
 
 @Composable
 fun NewsFeedScreen() {

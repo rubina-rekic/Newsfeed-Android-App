@@ -1,4 +1,4 @@
-package ba.etfrma.newsfeedapp
+package etf.ri.rma.newsfeedapp
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
@@ -11,8 +11,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import ba.etfrma.newsfeedapp.data.NewsData
-import ba.etfrma.newsfeedapp.screen.NewsFeedScreen
+import etf.ri.rma.newsfeedapp.data.NewsData
+import etf.ri.rma.newsfeedapp.screen.NewsFeedScreen
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

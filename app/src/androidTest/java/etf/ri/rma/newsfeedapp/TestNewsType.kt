@@ -1,13 +1,13 @@
-package ba.etfrma.newsfeedapp
+package etf.ri.rma.newsfeedapp
 
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import ba.etfrma.newsfeedapp.data.NewsData
-import ba.etfrma.newsfeedapp.screen.FeaturedNewsCard
-import ba.etfrma.newsfeedapp.screen.StandardNewsCard
+import etf.ri.rma.newsfeedapp.data.NewsData
+import etf.ri.rma.newsfeedapp.screen.FeaturedNewsCard
+import etf.ri.rma.newsfeedapp.screen.StandardNewsCard
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

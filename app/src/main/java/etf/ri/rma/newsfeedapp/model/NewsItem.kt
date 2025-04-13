@@ -1,6 +1,4 @@
-package ba.etfrma.newsfeedapp.model
-
-import androidx.annotation.DrawableRes
+package etf.ri.rma.newsfeedapp.model
 
 data class NewsItem(
     val id: String, // koristite kao key za lazylistu i neka bude jedinstveno za svaku vijest

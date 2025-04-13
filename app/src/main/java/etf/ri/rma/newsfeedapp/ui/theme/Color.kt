@@ -1,4 +1,4 @@
-package ba.etfrma.newsfeedapp.ui.theme
+package etf.ri.rma.newsfeedapp.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

@@ -1,7 +1,6 @@
-package ba.etfrma.newsfeedapp.data
+package etf.ri.rma.newsfeedapp.data
 
-import ba.etfrma.newsfeedapp.R
-import ba.etfrma.newsfeedapp.model.NewsItem
+import etf.ri.rma.newsfeedapp.model.NewsItem
 
 object NewsData {
     fun getAllNews(): List<NewsItem> {

@@ -1,4 +1,4 @@
-package ba.etfrma.newsfeedapp
+package etf.ri.rma.newsfeedapp
 
 import org.junit.Test
 
