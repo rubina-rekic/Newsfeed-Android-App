@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import ba.etfrma.newsfeedapp.model.NewsItem
@@ -22,13 +23,13 @@ fun StandardNewsCard(item: NewsItem) {
     Card(
         modifier = Modifier
             .padding(8.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth().testTag("standard_news_card"),
         shape = RoundedCornerShape(8.dp),
     ) {
         Row(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
             Image(
                 painter = painterResource(R.drawable.slikarma),
-                contentDescription = null,
+                contentDescription = "image",
                 modifier = Modifier
                     .size(100.dp)
                     .padding(end = 16.dp),

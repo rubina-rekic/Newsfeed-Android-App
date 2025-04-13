@@ -12,23 +12,28 @@ import ba.etfrma.newsfeedapp.model.NewsItem
 
 @Composable
 fun NewsFeedScreen() {
-    var selectedCategory by remember { mutableStateOf("All") }
     val allNews = NewsData.getAllNews()
-    val filteredNews = if (selectedCategory == "All") {
-        allNews
+    if (allNews.isEmpty()) {
+
+        MessageCard(message = "Nema dostupnih vijesti!")
     } else {
-        allNews.filter { it.category == selectedCategory }
-    }
 
-    val listState = rememberLazyListState()
+        var selectedCategory by remember { mutableStateOf("All") }
+        val filteredNews = if (selectedCategory == "All") {
+            allNews
+        } else {
+            allNews.filter { it.category == selectedCategory }
+        }
 
+        val listState = rememberLazyListState()
+        LaunchedEffect(selectedCategory) {
+            listState.animateScrollToItem(0)
+        }
 
-    LaunchedEffect(selectedCategory) {
-        listState.animateScrollToItem(0)
-    }
-
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        FilterSection(selectedCategory = selectedCategory, onCategorySelected = { selectedCategory = it })
-        NewsList(newsItems = filteredNews, selectedCategory = selectedCategory, listState = listState)
+        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+            FilterSection(selectedCategory = selectedCategory, onCategorySelected = { selectedCategory = it })
+            NewsList(newsItems = filteredNews, selectedCategory = selectedCategory, listState = listState)
+        }
     }
 }
+
