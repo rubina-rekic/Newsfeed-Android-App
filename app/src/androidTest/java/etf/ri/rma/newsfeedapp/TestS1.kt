@@ -19,7 +19,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
-
 /**
  * Instrumented test, which will execute on an Android device.
  *

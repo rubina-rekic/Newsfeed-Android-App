@@ -15,8 +15,8 @@ fun NewsFeedScreen() {
         MessageCard(message = "Nema dostupnih vijesti!")
     } else {
 
-        var selectedCategory by remember { mutableStateOf("All") }
-        val filteredNews = if (selectedCategory == "All") {
+        var selectedCategory by remember { mutableStateOf("Sve") }
+        val filteredNews = if (selectedCategory == "Sve") {
             allNews
         } else {
             allNews.filter { it.category == selectedCategory }

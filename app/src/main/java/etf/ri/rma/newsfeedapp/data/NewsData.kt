@@ -12,7 +12,7 @@ object NewsData {
                 imageUrl = null,
                 category = "Nauka/tehnologija",
                 isFeatured = false,
-                source = "SciTechDaily",
+                source = "SciTechDailyyy",
                 publishedDate = "2025-04-02"
             ),
             NewsItem(
@@ -52,7 +52,7 @@ object NewsData {
                 imageUrl = null,
                 category = "Sport",
                 isFeatured = true,
-                source = "BBC",
+                source = "BBCC",
                 publishedDate = "2025-04-05"
             ),
             NewsItem(
@@ -102,7 +102,7 @@ object NewsData {
                 imageUrl = null,
                 category = "Politika",
                 isFeatured = true,
-                source = "CNN",
+                source = "CNNN",
                 publishedDate = "2025-04-05"
             ),
             NewsItem(
@@ -112,7 +112,7 @@ object NewsData {
                 imageUrl = null,
                 category = "Nauka/tehnologija",
                 isFeatured = true,
-                source = "SciTech",
+                source = "SciTechDaily",
                 publishedDate = "2025-03-18"
             ),
             NewsItem(
@@ -123,7 +123,7 @@ object NewsData {
                 category = "Sport",
                 isFeatured = true,
                 source = "Chess.com",
-                publishedDate = "2025-04-04"
+                publishedDate = "2025-04-08"
             ),
             NewsItem(
                 id = "13",
@@ -152,8 +152,8 @@ object NewsData {
                 imageUrl = null,
                 category = "Sport",
                 isFeatured = false,
-                source = "BBC Sport",
-                publishedDate = "2025-04-05"
+                source = "BBC",
+                publishedDate = "2025-04-07"
             ),
             NewsItem(
                 id = "16",
@@ -162,7 +162,7 @@ object NewsData {
                 imageUrl = null,
                 category = "Politika",
                 isFeatured = false,
-                source = "Index",
+                source = "Index.hr",
                 publishedDate = "2025-04-05"
             ),
             NewsItem(
@@ -172,7 +172,7 @@ object NewsData {
                 imageUrl = null,
                 category = "Nauka/tehnologija",
                 isFeatured = true,
-                source = "Index.hr",
+                source = "Indexx.hr",
                 publishedDate = "2025-04-04"
             ),
             NewsItem(
@@ -182,7 +182,7 @@ object NewsData {
                 imageUrl = null,
                 category = "Nauka/tehnologija",
                 isFeatured = true,
-                source = "Index.hr",
+                source = "Indeex.hr",
                 publishedDate = "2025-03-29"
             ),
             NewsItem(

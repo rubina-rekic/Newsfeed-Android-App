@@ -20,7 +20,7 @@ fun FeaturedNewsCard(item: NewsItem) {
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth()
-            .testTag("featured-news-card"),
+            .testTag("featured_news_card"),
         shape = RoundedCornerShape(8.dp),
     ) {
         Column(

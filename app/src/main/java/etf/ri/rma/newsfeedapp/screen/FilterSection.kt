@@ -47,8 +47,8 @@ fun FilterSection(selectedCategory: String, onCategorySelected: (String) -> Unit
             verticalAlignment = Alignment.CenterVertically
         ) {
             FilterChip(
-                selected = selectedCategory == "All",
-                onClick = { if (selectedCategory != "All") onCategorySelected("All") },
+                selected = selectedCategory == "Sve",
+                onClick = { if (selectedCategory != "Sve") onCategorySelected("Sve") },
                 label = { Text("Sve") },
                 modifier = Modifier.padding(2.dp).testTag("filter_chip_all")
             )
@@ -62,5 +62,6 @@ fun FilterSection(selectedCategory: String, onCategorySelected: (String) -> Unit
         }
     }
 }
+
 
 
