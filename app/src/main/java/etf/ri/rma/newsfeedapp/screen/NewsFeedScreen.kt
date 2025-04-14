@@ -1,5 +1,4 @@
 package etf.ri.rma.newsfeedapp.screen
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.*
@@ -24,7 +23,7 @@ fun NewsFeedScreen() {
 
         val listState = rememberLazyListState()
         LaunchedEffect(selectedCategory) {
-            listState.animateScrollToItem(0)
+            listState.scrollToItem(0)
         }
 
         Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {

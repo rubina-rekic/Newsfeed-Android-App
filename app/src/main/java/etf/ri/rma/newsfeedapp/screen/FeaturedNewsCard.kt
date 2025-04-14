@@ -42,7 +42,8 @@ fun FeaturedNewsCard(item: NewsItem) {
             Text(
                 text = item.title,
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                maxLines = 2
+                maxLines = 2,
+                modifier = Modifier.testTag("news_title_${item.id}")
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(

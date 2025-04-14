@@ -39,7 +39,8 @@ fun StandardNewsCard(item: NewsItem) {
                     text = item.title,
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Normal),
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.testTag("news_title_${item.id}")
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(

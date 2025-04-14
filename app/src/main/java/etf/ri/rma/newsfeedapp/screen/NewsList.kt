@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import etf.ri.rma.newsfeedapp.model.NewsItem
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun NewsList(
@@ -18,8 +19,12 @@ fun NewsList(
         MessageCard(message = "Nema dostupnih vijesti u kategoriji \"$selectedCategory\"")
     } else {
         LazyColumn(
-            modifier = Modifier.fillMaxWidth().testTag("news_list"),
-            state = listState
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(vertical = 8.dp)
+                .testTag("news_list"),
+            state = listState,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(newsItems, key = { it.id }) { item ->
                 if (item.isFeatured) {
@@ -31,3 +36,4 @@ fun NewsList(
         }
     }
 }
+
