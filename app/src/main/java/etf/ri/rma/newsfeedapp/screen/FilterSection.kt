@@ -1,10 +1,12 @@
 package etf.ri.rma.newsfeedapp.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 
@@ -19,7 +21,7 @@ fun FilterSection(selectedCategory: String, onCategorySelected: (String) -> Unit
         ) {
             FilterChip(
                 selected = selectedCategory == "Politika",
-                onClick = { if (selectedCategory != "Politika") onCategorySelected("Politika") },
+                onClick = { if (selectedCategory != "Politika") onCategorySelected("Politika")},
                 label = { Text("Politika") },
                 modifier = Modifier.padding(2.dp).testTag("filter_chip_pol")
             )

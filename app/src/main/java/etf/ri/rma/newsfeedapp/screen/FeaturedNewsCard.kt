@@ -1,11 +1,15 @@
 package etf.ri.rma.newsfeedapp.screen
 
+import android.R.attr.background
+import android.R.id.background
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
@@ -16,15 +20,19 @@ import androidx.compose.ui.res.painterResource
 import etf.ri.rma.newsfeedapp.R
 @Composable
 fun FeaturedNewsCard(item: NewsItem) {
+
     Card(
-        modifier = Modifier
+
+        modifier = Modifier.background(color = Color(0xFFFFFACD))
             .padding(8.dp)
             .fillMaxWidth()
             .testTag("featured_news_card"),
         shape = RoundedCornerShape(8.dp),
+
+
     ) {
         Column(
-            modifier = Modifier
+            modifier = Modifier.background(color = Color(0xFFFFFACD))
                 .fillMaxWidth()
                 .padding(8.dp)
         ) {
