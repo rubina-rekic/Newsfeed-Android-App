@@ -4,6 +4,7 @@ import android.R.attr.background
 import android.R.id.background
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -19,8 +20,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.res.painterResource
 import etf.ri.rma.newsfeedapp.R
 @Composable
-fun FeaturedNewsCard(item: NewsItem) {
-
+fun FeaturedNewsCard(item: NewsItem, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(8.dp)
+    ) {
     Card(
 
         modifier = Modifier.background(color = Color(0xFFFFFACD))
@@ -67,5 +73,5 @@ fun FeaturedNewsCard(item: NewsItem) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-    }
+    }}
 }

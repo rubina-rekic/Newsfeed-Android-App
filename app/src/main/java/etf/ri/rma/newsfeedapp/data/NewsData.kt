@@ -12,7 +12,7 @@ object NewsData {
                 category = "Nauka/tehnologija",
                 isFeatured = false,
                 source = "SciTechDailyyy",
-                publishedDate = "2025-04-02"
+                publishedDate = "02-04-2025"
             ),
             NewsItem(
                 id = "2",
@@ -22,7 +22,7 @@ object NewsData {
                 category = "Nauka/tehnologija",
                 isFeatured = false,
                 source = "SciTechDaily",
-                publishedDate = "2025-04-04"
+                publishedDate = "04-04-2025"
             ),
             NewsItem(
                 id = "3",
@@ -32,7 +32,7 @@ object NewsData {
                 category = "Nauka/tehnologija",
                 isFeatured = false,
                 source = "Nezavisne novine",
-                publishedDate = "2025-04-01"
+                publishedDate ="01-04-2025"
             ),
             NewsItem(
                 id = "4",
@@ -42,7 +42,7 @@ object NewsData {
                 category = "Nauka/tehnologija",
                 isFeatured = true,
                 source = "SciTechDaily",
-                publishedDate = "2025-03-29"
+                publishedDate = "05-03-2025"
             ),
             NewsItem(
                 id = "5",
@@ -52,7 +52,7 @@ object NewsData {
                 category = "Sport",
                 isFeatured = true,
                 source = "BBCC",
-                publishedDate = "2025-04-05"
+                publishedDate = "05-04-2025"
             ),
             NewsItem(
                 id = "6",
@@ -62,7 +62,7 @@ object NewsData {
                 category = "Sport",
                 isFeatured = true,
                 source = "BBC",
-                publishedDate = "2025-03-20"
+                publishedDate = "20-03-2025"
             ),
             NewsItem(
                 id = "7",
@@ -72,7 +72,7 @@ object NewsData {
                 category = "Nauka/tehnologija",
                 isFeatured = true,
                 source = "SciTechDaily",
-                publishedDate = "2025-04-04"
+                publishedDate = "02-04-2025"
             ),
             NewsItem(
                 id = "8",
@@ -82,7 +82,7 @@ object NewsData {
                 category = "Sport",
                 isFeatured = true,
                 source = "BBC",
-                publishedDate = "2025-03-28"
+                publishedDate = "28-04-2025"
             ),
             NewsItem(
                 id = "9",
@@ -92,7 +92,7 @@ object NewsData {
                 category = "Politika",
                 isFeatured = true,
                 source = "CNN",
-                publishedDate = "2025-04-04"
+                publishedDate = "02-04-2025"
             ),
             NewsItem(
                 id = "10",
@@ -102,7 +102,7 @@ object NewsData {
                 category = "Politika",
                 isFeatured = true,
                 source = "CNNN",
-                publishedDate = "2025-04-05"
+                publishedDate = "07-04-2025"
             ),
             NewsItem(
                 id = "11",
@@ -112,7 +112,7 @@ object NewsData {
                 category = "Nauka/tehnologija",
                 isFeatured = true,
                 source = "SciTechDaily",
-                publishedDate = "2025-03-18"
+                publishedDate = "12-04-2025"
             ),
             NewsItem(
                 id = "12",
@@ -122,7 +122,7 @@ object NewsData {
                 category = "Sport",
                 isFeatured = true,
                 source = "Chess.com",
-                publishedDate = "2025-04-08"
+                publishedDate = "02-04-2025"
             ),
             NewsItem(
                 id = "13",
@@ -132,7 +132,7 @@ object NewsData {
                 category = "Sport",
                 isFeatured = false,
                 source = "Al Jazeera",
-                publishedDate = "2025-04-04"
+                publishedDate = "18-04-2025"
             ),
             NewsItem(
                 id = "14",
@@ -142,7 +142,7 @@ object NewsData {
                 category = "Politika",
                 isFeatured = true,
                 source = "N1 BiH",
-                publishedDate = "2025-04-05"
+                publishedDate = "02-04-2025"
             ),
             NewsItem(
                 id = "15",
@@ -152,7 +152,7 @@ object NewsData {
                 category = "Sport",
                 isFeatured = false,
                 source = "BBC",
-                publishedDate = "2025-04-07"
+                publishedDate = "02-03-2025"
             ),
             NewsItem(
                 id = "16",
@@ -162,7 +162,7 @@ object NewsData {
                 category = "Politika",
                 isFeatured = false,
                 source = "Index.hr",
-                publishedDate = "2025-04-05"
+                publishedDate = "08-04-2025"
             ),
             NewsItem(
                 id = "17",
@@ -172,7 +172,7 @@ object NewsData {
                 category = "Nauka/tehnologija",
                 isFeatured = true,
                 source = "Indexx.hr",
-                publishedDate = "2025-04-04"
+                publishedDate = "02-04-2025"
             ),
             NewsItem(
                 id = "18",
@@ -182,7 +182,7 @@ object NewsData {
                 category = "Nauka/tehnologija",
                 isFeatured = true,
                 source = "Indeex.hr",
-                publishedDate = "2025-03-29"
+                publishedDate = "29-03-2025"
             ),
             NewsItem(
                 id = "19",
@@ -192,7 +192,7 @@ object NewsData {
                 category = "Nauka/tehnologija",
                 isFeatured = true,
                 source = "SciTechDaily",
-                publishedDate = "2025-03-26"
+                publishedDate = "26-03-2025"
             ),
             NewsItem(
                 id = "20",
@@ -202,7 +202,7 @@ object NewsData {
                 category = "Politika",
                 isFeatured = true,
                 source = "Index.hr",
-                publishedDate = "2025-04-05"
+                publishedDate = "02-04-2025"
             )
 
         )

@@ -13,7 +13,8 @@ import androidx.compose.ui.unit.dp
 fun NewsList(
     newsItems: List<NewsItem>,
     selectedCategory: String,
-    listState: LazyListState
+    listState: LazyListState,
+    onNewsClick: (String) -> Unit
 ) {
     if (newsItems.isEmpty()) {
         MessageCard(message = "Nema dostupnih vijesti u kategoriji \"$selectedCategory\"")
@@ -28,9 +29,9 @@ fun NewsList(
         ) {
             items(newsItems, key = { it.id }) { item ->
                 if (item.isFeatured) {
-                    FeaturedNewsCard(item = item)
+                    FeaturedNewsCard(item = item, onClick = { onNewsClick(item.id) })
                 } else {
-                    StandardNewsCard(item = item)
+                    StandardNewsCard(item = item, onClick = { onNewsClick(item.id) })
                 }
             }
         }

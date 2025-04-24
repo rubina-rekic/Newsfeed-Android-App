@@ -2,6 +2,7 @@ package etf.ri.rma.newsfeedapp.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -19,7 +20,13 @@ import androidx.compose.ui.res.painterResource
 import etf.ri.rma.newsfeedapp.R
 
 @Composable
-fun StandardNewsCard(item: NewsItem) {
+fun StandardNewsCard(item: NewsItem,onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(8.dp)
+    ) {
     val backgroundColor = when (item.category) {
         "Sport" -> Color(0xFFADD8E6)
         "Nauka/tehnologija" -> Color(0xFF90EE90)
@@ -67,4 +74,4 @@ fun StandardNewsCard(item: NewsItem) {
             }
         }
     }
-}
+}}

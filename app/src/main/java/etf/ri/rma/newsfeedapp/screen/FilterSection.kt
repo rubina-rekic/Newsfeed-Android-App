@@ -1,19 +1,20 @@
 package etf.ri.rma.newsfeedapp.screen
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun FilterSection(selectedCategory: String, onCategorySelected: (String) -> Unit) {
+fun FilterSection(
+    selectedCategory: String,
+    onCategorySelected: (String) -> Unit,
+    onMoreFiltersClicked: () -> Unit
+) {
     Column(modifier = Modifier.fillMaxWidth()) {
-
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -21,7 +22,7 @@ fun FilterSection(selectedCategory: String, onCategorySelected: (String) -> Unit
         ) {
             FilterChip(
                 selected = selectedCategory == "Politika",
-                onClick = { if (selectedCategory != "Politika") onCategorySelected("Politika")},
+                onClick = { if (selectedCategory != "Politika") onCategorySelected("Politika") },
                 label = { Text("Politika") },
                 modifier = Modifier.padding(2.dp).testTag("filter_chip_pol")
             )
@@ -36,7 +37,7 @@ fun FilterSection(selectedCategory: String, onCategorySelected: (String) -> Unit
             FilterChip(
                 selected = selectedCategory == "Nauka/tehnologija",
                 onClick = { if (selectedCategory != "Nauka/tehnologija") onCategorySelected("Nauka/tehnologija") },
-                label = { Text("Nauka/Tehnologija") },
+                label = { Text("Nauka/tehnologija") },
                 modifier = Modifier.padding(2.dp).testTag("filter_chip_sci")
             )
         }
@@ -61,9 +62,13 @@ fun FilterSection(selectedCategory: String, onCategorySelected: (String) -> Unit
                 label = { Text("Zdravlje") },
                 modifier = Modifier.padding(2.dp)
             )
+
+            FilterChip(
+                selected = false,
+                onClick = { onMoreFiltersClicked() },
+                label = { Text("Više filtera ...") },
+                modifier = Modifier.padding(2.dp).testTag("filter_chip_more")
+            )
         }
     }
 }
-
-
-

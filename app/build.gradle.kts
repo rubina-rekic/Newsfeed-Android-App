@@ -59,4 +59,8 @@ dependencies {
     implementation(libs.coil.compose)
     androidTestImplementation("org.jetbrains.kotlin:kotlin-test-junit")
     testImplementation(kotlin("test"))
+    implementation ("androidx.navigation:navigation-compose:2.7.3")
+
+    implementation("androidx.compose.material3:material3:1.2.1")
+
 }
