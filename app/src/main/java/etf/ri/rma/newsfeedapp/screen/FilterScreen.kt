@@ -37,12 +37,20 @@ fun String.toDate(format: String = "dd-MM-yyyy"): Date? {
 fun FilterScreen(
     selectedCategory: String,
     dateRange: Pair<String?, String?>,
+    dateRangesByCategory: Map<String, Pair<String?, String?>>,
     unwantedWordsByCategory: Map<String, List<String>>,
-    onApplyFilters: (String, Pair<String?, String?>, Map<String, List<String>>) -> Unit,
+    onApplyFilters: (
+        String,
+        Map<String, Pair<String?, String?>>,
+        Map<String, List<String>>
+    ) -> Unit,
     onBackPressed: () -> Unit
 ) {
     var currentCategory by remember { mutableStateOf(selectedCategory) }
-    var currentDateRange by remember { mutableStateOf(dateRange) }
+    var currentDateRangesMap by remember { mutableStateOf(dateRangesByCategory.toMutableMap()) }
+    var currentDateRange by remember {
+        mutableStateOf(dateRangesByCategory[selectedCategory] ?: (null to null))
+    }
     var currentUnwantedWordsMap by remember { mutableStateOf(unwantedWordsByCategory.toMutableMap()) }
     var showDatePicker by remember { mutableStateOf(false) }
     var newUnwantedWord by remember { mutableStateOf("") }
@@ -51,16 +59,12 @@ fun FilterScreen(
 
     BackHandler { onBackPressed() }
 
-    // Ensure UI updates when showDatePicker changes
-    LaunchedEffect(showDatePicker) {
-        // Trigger recomposition to ensure visibility of date range display
-    }
-
     if (showDatePicker) {
         DateRangePickerDialog(
             onDismissRequest = { showDatePicker = false },
             onDateSelected = { startDate, endDate ->
                 currentDateRange = startDate to endDate
+                currentDateRangesMap[currentCategory] = currentDateRange
                 showDatePicker = false
             }
         )
@@ -81,13 +85,13 @@ fun FilterScreen(
                     else -> "filter_chip_all"
                 }
                 FilterChip(
-                    selected = currentCategory == category, // Bind to state
+                    selected = currentCategory == category,
                     onClick = {
-                        currentCategory = category // Update state
-                        Log.d("FilterScreen", "Selected category: $currentCategory") // Debugging log
+                        currentCategory = category
+                        currentDateRange = currentDateRangesMap[category] ?: (null to null)
                     },
                     label = { Text(category) },
-                    modifier = Modifier.testTag(testTag) // Ensure TestTag matches
+                    modifier = Modifier.testTag(testTag)
                 )
             }
         }
@@ -154,7 +158,7 @@ fun FilterScreen(
 
         Button(
             onClick = {
-                onApplyFilters(currentCategory, currentDateRange, currentUnwantedWordsMap)
+                onApplyFilters(currentCategory, currentDateRangesMap, currentUnwantedWordsMap)
             },
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)

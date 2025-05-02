@@ -18,11 +18,10 @@ import androidx.compose.ui.platform.testTag
 
 
 @Composable
-fun NewsFeedScreen(navController: NavController?=null) {
-
+fun NewsFeedScreen(navController: NavController? = null) {
     var showFilterScreen by rememberSaveable { mutableStateOf(false) }
     var selectedCategory by rememberSaveable { mutableStateOf("Sve") }
-    var dateRange by rememberSaveable { mutableStateOf<Pair<String?, String?>>(null to null) }
+    var dateRangesByCategory by rememberSaveable { mutableStateOf(mapOf<String, Pair<String?, String?>>()) }
     var unwantedWordsByCategory by rememberSaveable { mutableStateOf(mapOf<String, List<String>>()) }
 
     val listState = rememberLazyListState()
@@ -35,18 +34,26 @@ fun NewsFeedScreen(navController: NavController?=null) {
     val dateFormatter = remember { SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()) }
 
     val currentUnwantedWords = unwantedWordsByCategory[selectedCategory].orEmpty()
+    val currentDateRange = dateRangesByCategory[selectedCategory] ?: (null to null)
 
     val filteredNews = allNews.filter { news ->
+        val isInCategory = selectedCategory == "Sve" || news.category.equals(selectedCategory, ignoreCase = true)
+
+        if (!isInCategory) return@filter false
+
         val newsDate = try {
             dateFormatter.parse(news.publishedDate)
         } catch (e: Exception) {
             null
         }
-        val startDate = dateRange.first?.let { dateFormatter.parse(it) }
-        val endDate = dateRange.second?.let { dateFormatter.parse(it) }
 
-        val isInCategory = selectedCategory == "Sve" || news.category.equals(selectedCategory, ignoreCase = true)
-        val isInDateRange = if (startDate != null && endDate != null && newsDate != null) {
+        val startDate = currentDateRange.first?.let { dateFormatter.parse(it) }
+        val endDate = currentDateRange.second?.let { dateFormatter.parse(it) }
+
+        val isInDateRange = if (
+            (selectedCategory == "Sve" || news.category.equals(selectedCategory, ignoreCase = true)) &&
+            startDate != null && endDate != null && newsDate != null
+        ) {
             compareDates(newsDate, startDate) >= 0 && compareDates(newsDate, endDate) <= 0
         } else true
 
@@ -54,18 +61,18 @@ fun NewsFeedScreen(navController: NavController?=null) {
             news.title.contains(word, ignoreCase = true)
         }
 
-        isInCategory && isInDateRange && passesUnwantedWordFilter
+        isInDateRange && passesUnwantedWordFilter
     }
-
 
     if (showFilterScreen) {
         FilterScreen(
             selectedCategory = selectedCategory,
-            dateRange = dateRange,
+            dateRange = currentDateRange,
+            dateRangesByCategory = dateRangesByCategory,
             unwantedWordsByCategory = unwantedWordsByCategory,
-            onApplyFilters = { selectedCat, range, wordsMap ->
+            onApplyFilters = { selectedCat, rangesMap, wordsMap ->
                 selectedCategory = selectedCat
-                dateRange = range
+                dateRangesByCategory = rangesMap
                 unwantedWordsByCategory = wordsMap
                 showFilterScreen = false
             },
@@ -87,11 +94,10 @@ fun NewsFeedScreen(navController: NavController?=null) {
                 selectedCategory = selectedCategory,
                 listState = listState,
                 onNewsClick = { newsId -> navController?.navigate("details/$newsId") },
-                        modifier = Modifier.testTag("news_list")
+                modifier = Modifier.testTag("news_list")
             )
         }
     }
-
 }
 
 
