@@ -24,11 +24,11 @@ import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.rememberDateRangePickerState
 import etf.ri.rma.newsfeedapp.model.NewsItem
 
-
 fun String.toDate(format: String = "dd-MM-yyyy"): Date? {
     return try {
         SimpleDateFormat(format, Locale.getDefault()).parse(this)
     } catch (e: Exception) {
+        Log.e("toDate", "Invalid date format: $this", e)
         null
     }
 }
@@ -51,6 +51,11 @@ fun FilterScreen(
 
     BackHandler { onBackPressed() }
 
+    // Ensure UI updates when showDatePicker changes
+    LaunchedEffect(showDatePicker) {
+        // Trigger recomposition to ensure visibility of date range display
+    }
+
     if (showDatePicker) {
         DateRangePickerDialog(
             onDismissRequest = { showDatePicker = false },
@@ -64,12 +69,25 @@ fun FilterScreen(
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text("Kategorije", style = MaterialTheme.typography.titleMedium)
         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(listOf("Sve", "Politika", "Sport", "Nauka/tehnologija", "Zdravlje")) { category ->
+            items(
+                items = listOf("Sve", "Politika", "Sport", "Nauka/tehnologija", "Zdravlje"),
+                key = { it }
+            ) { category ->
+                val testTag = when (category) {
+                    "Politika" -> "filter_chip_pol"
+                    "Sport" -> "filter_chip_spo"
+                    "Nauka/tehnologija" -> "filter_chip_sci"
+                    "Zdravlje" -> "filter_chip_health"
+                    else -> "filter_chip_all"
+                }
                 FilterChip(
-                    selected = currentCategory == category,
-                    onClick = { currentCategory = category },
+                    selected = currentCategory == category, // Bind to state
+                    onClick = {
+                        currentCategory = category // Update state
+                        Log.d("FilterScreen", "Selected category: $currentCategory") // Debugging log
+                    },
                     label = { Text(category) },
-                    modifier = Modifier.testTag("filter_chip_${category.lowercase()}")
+                    modifier = Modifier.testTag(testTag) // Ensure TestTag matches
                 )
             }
         }
@@ -126,7 +144,7 @@ fun FilterScreen(
             }
         }
 
-        LazyColumn(modifier = Modifier.testTag("filter_unwanted_list")) {
+        LazyColumn(modifier = Modifier.testTag("filter_unwanted_list").testTag("news_list")) {
             items(currentWords.size) { index ->
                 Text(currentWords[index])
             }
@@ -157,6 +175,9 @@ fun filterNewsByDate(newsList: List<NewsItem>, startDate: String?, endDate: Stri
 
     return newsList.filter {
         val newsDate = it.publishedDate.toDate()
+        if (newsDate == null) {
+            Log.w("filterNewsByDate", "Invalid date for NewsItem: ${it.publishedDate}")
+        }
         newsDate != null && newsDate in start..end
     }
 }

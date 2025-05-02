@@ -14,7 +14,8 @@ fun NewsList(
     newsItems: List<NewsItem>,
     selectedCategory: String,
     listState: LazyListState,
-    onNewsClick: (String) -> Unit
+    onNewsClick: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     if (newsItems.isEmpty()) {
         MessageCard(message = "Nema dostupnih vijesti u kategoriji \"$selectedCategory\"")

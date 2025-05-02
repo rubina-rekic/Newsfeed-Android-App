@@ -5,19 +5,19 @@
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="TestS1">
+      <SelectionState runConfigName="TestS2">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="ExampleInstrumentedTest">
+      <SelectionState runConfigName="detaljiVijesti()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="TestNewsType (1)">
+      <SelectionState runConfigName="politikaStartFilterMoreSportShouldBeSportWhenReturneToNewsList()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="TestS1 (1)">
+      <SelectionState runConfigName="filterOutWordFromThirdNews()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="chipSport_All()">
+      <SelectionState runConfigName="detaljiVijestiNajblizeVijestiBack()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

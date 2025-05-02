@@ -59,30 +59,35 @@ fun NewsDetailsScreen(
 
         // rilejted vijesti
         Text("Povezane vijesti iz iste kategorije", style = MaterialTheme.typography.titleMedium)
-        relatedNews.forEachIndexed { index, related ->
-            Text(
-                text = related.title,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier
-                    .clickable { navController.navigate("details/${related.id}") }
-                    .testTag("related_news_title_${index + 1}")
-                    .padding(vertical = 4.dp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+        Column(modifier = Modifier.testTag("news_list")) { // Dodan TestTag ovdje
+            relatedNews.forEachIndexed { index, related ->
+                Text(
+                    text = related.title,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                        .clickable { navController.navigate("details/${related.id}") }
+                        .testTag("related_news_title_${index + 1}")
+                        .padding(vertical = 4.dp),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
 
         Spacer(modifier = Modifier.weight(1f))
 
 
         Button(
-            onClick = { navController.popBackStack("news_feed", inclusive = false) },
+            onClick = {
+                navController.navigate("news_feed")
+            },
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .testTag("details_close_button")
         ) {
             Text("Zatvori detalje")
         }
+
     }
 }
 

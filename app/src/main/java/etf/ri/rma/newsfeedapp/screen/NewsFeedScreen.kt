@@ -2,6 +2,7 @@ package etf.ri.rma.newsfeedapp.screen
 
 import android.util.Log
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -12,13 +13,17 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.compareTo
 import kotlin.text.category
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.platform.testTag
+
 
 @Composable
 fun NewsFeedScreen(navController: NavController?=null) {
-    var showFilterScreen by remember { mutableStateOf(false) }
-    var selectedCategory by remember { mutableStateOf("Sve") }
-    var dateRange by remember { mutableStateOf<Pair<String?, String?>>(null to null) }
-    var unwantedWordsByCategory by remember { mutableStateOf(mapOf<String, List<String>>()) }
+
+    var showFilterScreen by rememberSaveable { mutableStateOf(false) }
+    var selectedCategory by rememberSaveable { mutableStateOf("Sve") }
+    var dateRange by rememberSaveable { mutableStateOf<Pair<String?, String?>>(null to null) }
+    var unwantedWordsByCategory by rememberSaveable { mutableStateOf(mapOf<String, List<String>>()) }
 
     val listState = rememberLazyListState()
     LaunchedEffect(selectedCategory) {
@@ -45,12 +50,13 @@ fun NewsFeedScreen(navController: NavController?=null) {
             compareDates(newsDate, startDate) >= 0 && compareDates(newsDate, endDate) <= 0
         } else true
 
-        val passesUnwantedWordFilter = if (selectedCategory != "Sve") {
-            currentUnwantedWords.none { word -> news.title.contains(word, ignoreCase = true) }
-        } else true
+        val passesUnwantedWordFilter = currentUnwantedWords.none { word ->
+            news.title.contains(word, ignoreCase = true)
+        }
 
         isInCategory && isInDateRange && passesUnwantedWordFilter
     }
+
 
     if (showFilterScreen) {
         FilterScreen(
@@ -80,11 +86,12 @@ fun NewsFeedScreen(navController: NavController?=null) {
                 newsItems = filteredNews,
                 selectedCategory = selectedCategory,
                 listState = listState,
-                onNewsClick = { newsId -> navController?.navigate("details/$newsId") }
-
+                onNewsClick = { newsId -> navController?.navigate("details/$newsId") },
+                        modifier = Modifier.testTag("news_list")
             )
         }
     }
+
 }
 
 

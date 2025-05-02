@@ -22,21 +22,21 @@ fun FilterSection(
         ) {
             FilterChip(
                 selected = selectedCategory == "Politika",
-                onClick = { if (selectedCategory != "Politika") onCategorySelected("Politika") },
+                onClick = { onCategorySelected("Politika") },
                 label = { Text("Politika") },
                 modifier = Modifier.padding(2.dp).testTag("filter_chip_pol")
             )
 
             FilterChip(
                 selected = selectedCategory == "Sport",
-                onClick = { if (selectedCategory != "Sport") onCategorySelected("Sport") },
+                onClick = { onCategorySelected("Sport") },
                 label = { Text("Sport") },
                 modifier = Modifier.padding(2.dp).testTag("filter_chip_spo")
             )
 
             FilterChip(
                 selected = selectedCategory == "Nauka/tehnologija",
-                onClick = { if (selectedCategory != "Nauka/tehnologija") onCategorySelected("Nauka/tehnologija") },
+                onClick = { onCategorySelected("Nauka/tehnologija") },
                 label = { Text("Nauka/tehnologija") },
                 modifier = Modifier.padding(2.dp).testTag("filter_chip_sci")
             )
@@ -51,14 +51,14 @@ fun FilterSection(
         ) {
             FilterChip(
                 selected = selectedCategory == "Sve",
-                onClick = { if (selectedCategory != "Sve") onCategorySelected("Sve") },
+                onClick = { onCategorySelected("Sve") },
                 label = { Text("Sve") },
                 modifier = Modifier.padding(2.dp).testTag("filter_chip_all")
             )
 
             FilterChip(
                 selected = selectedCategory == "Zdravlje",
-                onClick = { if (selectedCategory != "Zdravlje") onCategorySelected("Zdravlje") },
+                onClick = { onCategorySelected("Zdravlje") },
                 label = { Text("Zdravlje") },
                 modifier = Modifier.padding(2.dp)
             )
