@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.rememberDateRangePickerState
+import androidx.navigation.NavController
 import etf.ri.rma.newsfeedapp.model.NewsItem
 
 fun String.toDate(format: String = "dd-MM-yyyy"): Date? {

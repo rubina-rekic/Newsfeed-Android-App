@@ -28,11 +28,11 @@ fun NewsList(
             state = listState,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(newsItems, key = { it.id }) { item ->
+            items(newsItems, key = { it.uuid }) { item ->
                 if (item.isFeatured) {
-                    FeaturedNewsCard(item = item, onClick = { onNewsClick(item.id) })
+                    FeaturedNewsCard(item = item, onClick = { onNewsClick(item.uuid) })
                 } else {
-                    StandardNewsCard(item = item, onClick = { onNewsClick(item.id) })
+                    StandardNewsCard(item = item, onClick = { onNewsClick(item.uuid) })
                 }
             }
         }

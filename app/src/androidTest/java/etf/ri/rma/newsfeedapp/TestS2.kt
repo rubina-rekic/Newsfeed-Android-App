@@ -80,7 +80,7 @@ class TestS2 {
 
     @Test
     fun detaljiVijesti(){
-        //provjera ispravnog prikaza detalja vijesti
+
         val news = NewsData.getAllNews().get(2)
         var listnode = composeTestRule.onNodeWithTag("news_list")
         listnode.performScrollToNode(hasText(news.title)).performClick()
@@ -94,7 +94,7 @@ class TestS2 {
 
     @Test
     fun detaljiVijestiNajblizeVijesti(){
-        //provjera za najblize vijesti
+
         val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
         var newsId=-1
         var news:NewsItem
@@ -123,7 +123,7 @@ class TestS2 {
 
     @Test
     fun detaljiVijestiNajblizeVijestiBack(){
-        //test otvara prvu vijest, otvara nakon toga prvu najblizu vijest i pritisne sistemsko dugme back
+
         var listnode = composeTestRule.onNodeWithTag("news_list")
         val naslov=NewsData.getAllNews().get(0).title;
         listnode.performScrollToNode(hasText(naslov))
@@ -134,7 +134,7 @@ class TestS2 {
         composeTestRule.waitForIdle()
         Espresso.pressBack()
         composeTestRule.waitForIdle()
-        //Treba se vratiti na pocetni screen
+
         composeTestRule.onNodeWithTag("news_list").assertExists()
     }
 }

@@ -11,6 +11,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import etf.ri.rma.newsfeedapp.screen.FilterScreen
 import etf.ri.rma.newsfeedapp.screen.NewsDetailsScreen
 import etf.ri.rma.newsfeedapp.screen.NewsFeedScreen
 
@@ -29,6 +30,7 @@ class MainActivity : ComponentActivity() {
                     composable("news_feed") {
                         NewsFeedScreen(navController = navController)
                     }
+
                     composable("details/{newsId}") { backStackEntry ->
                         val newsId = backStackEntry.arguments?.getString("newsId") ?: ""
                         NewsDetailsScreen(navController = navController, newsId = newsId)
@@ -38,5 +40,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-

@@ -6,206 +6,98 @@ object NewsData {
         return listOf(
 
             NewsItem(
-                id = "1",
-                title = "Prva kora Zemlje imala je karakteristike današnjih kontinentalnih stijena",
-                snippet = "Nova istraživanja sugeriraju da je prva kora Zemlje, formirana prije više od 4,5 milijardi godina, već nosila hemijske karakteristike koje povezujemo s modernim kontinentima. To znači da tragovi kontinentalne kore nisu trebali tektonske ploče da bi se formirali, što dovodi u pitanje dugogodišnju teoriju.",
-                imageUrl = null,
-                category = "Nauka/tehnologija",
+                uuid = "66d23d1c-12c8-4365-b580-1513c74d7641",
+                title = "Russia warns US about Golden Dome scheme",
+                snippet = "Washington’s plans for a global anti-ballistic missile system are eroding strategic stability, the Foreign Ministry has says\n\nThe US is taking a “reckless a...",
+                imageUrl = "https://mf.b37mrtl.ru/files/2025.05/article/6835a41520302772cf325714.jpg",
+                category = "general",
                 isFeatured = false,
-                source = "SciTechDaily",
-                publishedDate = "04-04-2025"
+                source = "rt.com",
+                publishedDate = "27-05-2025"
             ),
             NewsItem(
-                id = "2",
-                title = "Kapsula SpaceX lansirana u misiju orbitiranja oko polova Zemlje",
-                snippet = "Svemirska kapsula Crew Dragon, u vlasništvu SpaceX-a, lansirana je u Zemljinu orbitu. Misija traje 3 do 5 dana, a astronauti će učestvovati u 22 istraživačka eksperimenta.",
-                imageUrl = null,
-                category = "Nauka/tehnologija",
+                uuid = "5fc60db3-a631-4076-8f1d-36f41472f3c6",
+                title = "There are two Gen Zs",
+                snippet = "is a senior politics reporter at Vox, where he covers the Democratic Party. He joined Vox in 2022 after reporting on national and international politics for the...",
+                imageUrl = "https://platform.vox.com/wp-content/uploads/sites/2/2025/05/gettyimages-2158175237.jpg?quality=90&strip=all&crop=0%2C10.728733235956%2C100%2C78.542533528088&w=1200",
+                category = "general",
                 isFeatured = false,
-                source = "Nezavisne novine",
-                publishedDate ="01-04-2025"
+                source = "vox.com",
+                publishedDate = "27-05-2025"
             ),
             NewsItem(
-                id = "3",
-                title = "Naučnici razvili prvi All-in-one čip za kvantni internet",
-                snippet = "Naučnici u Oak Ridge National Laboratory razvili su prvi čip koji integriše ključne kvantne fotonske komponente, čime je napravljen veliki korak ka skalabilnom kvantnom internetu. Čip omogućava prijenos kvantnih informacija preko postojećih optičkih vlakana.",
-                imageUrl = null,
-                category = "Nauka/tehnologija",
-                isFeatured = true,
-                source = "SciTechDaily",
-                publishedDate = "05-03-2025"
-            ),
-            NewsItem(
-                id = "4",
-                title = "Luis Enrique: Trener koji je transformisao PSG",
-                snippet = "Luis Enrique, menadžer Paris Saint-Germaina, doveo je ekipu do uzastopnih titula u Ligue 1. Nakon lične tragedije, njegova posvećenost i filozofija tima odvela je PSG do novih visina. Tim je postao kolektivna, kohezivna i otporna jedinica.",
-                imageUrl = null,
-                category = "Sport",
-                isFeatured = true,
-                source = "BBCC",
-                publishedDate = "05-04-2025"
-            ),
-            NewsItem(
-                id = "5",
-                title = "Kalendar F1 utrka za 2025. godinu",
-                snippet = "U 2025. sezoni F1 biće održane šest sprint trka. Format ostaje isti kao u 2024. godini, sa sprint kvalifikacijama u petak, trkom od 100 km u subotu i standardnom trkom u nedjelju. Sprint trke će se održati na pet različitih lokacija tokom sezone.",
-                imageUrl = null,
-                category = "Sport",
-                isFeatured = true,
-                source = "BBC",
-                publishedDate = "20-03-2025"
-            ),
-            NewsItem(
-                id = "6",
-                title = "Mars pokriven otrovnom prašinom",
-                snippet = "Nedavna istraživanja sugeriraju da Marsova prašina sadrži toksicne spojeve koji mogu ozbiljno oštetiti ljudsko zdravlje. Prašina koja sadrži silikate, perhlorate i teške metale, može uzrokovati respiratorne probleme, disfunkciju štitnjače i druge zdravstvene poteškoće. Stručnjaci savjetuju razvoj tehnologija koje će zaštititi astronaute tokom budućih misija.",
-                imageUrl = null,
-                category = "Nauka/tehnologija",
-                isFeatured = true,
-                source = "SciTechDaily",
-                publishedDate = "02-04-2025"
-            ),
-            NewsItem(
-                id = "7",
-                title = "Đoković dolazi do finala Miamija i približava se 100. tituli",
-                snippet = "Novak Đoković je pobijedio Grigora Dimitrova i stigao do svog prvog finala na Miami Openu od 2016. godine, ujedno se približavajući 100. ATP tituli u svojoj karijeri. U finalu će se susresti s češkim igračem Jakubom Mensikom.",
-                imageUrl = null,
-                category = "Sport",
-                isFeatured = true,
-                source = "BBC",
-                publishedDate = "28-04-2025"
-            ),
-            NewsItem(
-                id = "8",
-                title = "Rubio upozorava Rusiju da je vrijeme za mirovne pregovore gotovo",
-                snippet = "Američki državni tajnik Marco Rubio poslao je Putinu jasnu poruku: vrijeme za postizanje napretka u mirovnim pregovorima u Ukrajini ističe. Iako Trump i njegovi suradnici smatraju da Putin želi mir, saveznici sumnjaju u iskrenost njegovih namjera.",
-                imageUrl = null,
-                category = "Politika",
-                isFeatured = true,
-                source = "CNN",
-                publishedDate = "02-04-2025"
-            ),
-            NewsItem(
-                id = "9",
-                title = "Što je izgradio FDR, Trump želi srušiti",
-                snippet = "Donald Trump u svom drugom mandatu pokušava uništiti institucije koje je Franklin D. Roosevelt izgradio tijekom New Deala. Od ukidanja vladinih agencija do promjena trgovinskih odnosa, Trumpov pristup je suprotan Rooseveltovom.",
-                imageUrl = null,
-                category = "Politika",
-                isFeatured = true,
-                source = "CNNN",
-                publishedDate = "07-04-2025"
-            ),
-            NewsItem(
-                id = "10",
-                title = "Fizičari sa UCLA otkrili misterozne spirale na čvrstim površinama",
-                snippet = "Doktorski student sa Univerziteta u Kaliforniji, Los Angeles, Yilin Wong, otkrio je nevjerovatne spiralne uzorke na maloj germanijskoj ploči. Istraživanja su pokazala da se ovi uzorci spontano formiraju kroz hemijsku reakciju u interakciji sa mehaničkim silama, što predstavlja najveći napredak u proučavanju hemijskih obrazaca još od 1950-ih godina.",
-                imageUrl = null,
-                category = "Nauka/tehnologija",
-                isFeatured = true,
-                source = "SciTechDaily",
-                publishedDate = "12-04-2025"
-            ),
-            NewsItem(
-                id = "11",
-                title = "Magnus protiv svijeta: Rekord sa 100.000 učesnika postavljen",
-                snippet = "U iščekivanoj partiji Magnus protiv svijeta, GM Magnus Carlsen je napravio prvi potez na Chess.com, a događaj je postavio rekord sa 100.000 prijavljenih učesnika. Ovaj događaj je najposećeniji online šahovski meč u istoriji, koji je nadmašio prethodni rekord postavljen prošle godine.",
-                imageUrl = null,
-                category = "Sport",
-                isFeatured = true,
-                source = "Chess.com",
-                publishedDate = "02-04-2025"
-            ),
-            NewsItem(
-                id = "12",
-                title = "Barcelona vs Real Betis: LaLiga",
-                snippet = "Barcelona pokušava povećati prednost na šest bodova u LaLigi kada se sastanu sa Real Betisom u subotu. Ne zan se hoče li Barcelonin mladi igrač Lamine Yamal igrati utakmicu zbog povrede stopala.",
-                imageUrl = null,
-                category = "Sport",
+                uuid = "1da7b726-5ec3-4658-b66c-a6732f74443a",
+                title = "£7.5bn of Universal Credit went unclaimed in one year – yet Labour is cutting people’s benefits?",
+                snippet = "An estimated £7.5 billion in Universal Credit benefits remain unclaimed in 2023 due to Department for Work and Pensions (DWP) complicated eligibility criteria,...",
+                imageUrl = "https://www.thecanary.co/wp-content/uploads/2025/05/Untitled-design-2025-05-27T123844.474.jpg",
+                category = "general",
                 isFeatured = false,
-                source = "Al Jazeera",
-                publishedDate = "18-04-2025"
+                source = "thecanary.co",
+                publishedDate = "27-05-2025"
             ),
             NewsItem(
-                id = "13",
-                title = "Ukrajina se suočava s krizom oko eksploatacije rijetkih minerala",
-                snippet = "Ukrajinski zvaničnici tvrde da njihova zemlja posjeduje značajne rezerve rijetkih minerala, ključnih za industriju, tehnologiju i odbranu. Ako bi Rusija preuzela kontrolu nad tim resursima, to bi moglo imati katastrofalne posljedice za saveznike Ukrajine.",
-                imageUrl = null,
-                category = "Politika",
-                isFeatured = true,
-                source = "N1 BiH",
-                publishedDate = "02-04-2025"
-            ),
-            NewsItem(
-                id = "14",
-                title = "Real Madrid vs Valencia - Neočekivan preokret",
-                snippet = "Valencia je šokirala Real Madrid sa pobjedom u 95. minuti, Hugo Duro je postigao pobjednički gol u sudijskoj nadoknadi nakon što je Rafa Mir odigrao savršen centaršut.",
-                imageUrl = null,
-                category = "Sport",
+                uuid = "5ec86be8-faeb-459b-b2ef-cb39a9dba4a2",
+                title = "NASA warns! Massive 25-storey building sized asteroid is set to pass close to Earth on May 28 - know the speed, time and other key details",
+                snippet = "Asteroid 2025 JR is moving towards Earth on May 28\n\n\n\nAsteroid 2025 JR: Date, time, speed and other details\n\nParameter\n\nDetails\n\nName\n\nAsteroid 2025 JR\n\nClosest...",
+                imageUrl = "https://static.toiimg.com/thumb/msid-121437326,width-1070,height-580,imgsize-49492,resizemode-75,overlay-toi_sw,pt-32,y_pad-40/photo.jpg",
+                category = "science",
                 isFeatured = false,
-                source = "BBC",
-                publishedDate = "02-03-2025"
+                source = "timesofindia.indiatimes.com",
+                publishedDate = "27-05-2025"
             ),
             NewsItem(
-                id = "15",
-                title = "Zamjenik iranskog predsjednika smijenjen zbog luksuznog putovanja na Antarktiku",
-                snippet = "Iranski predsjednik Masoud Pezeškian smijenio je svog zamjenika Šahrama Dabirija zbog luksuznog putovanja na Antarktiku tijekom proslave iranske nove godine, Nowruza, koje je izazvalo bijes u zemlji. Putovanje je opisano kao 'neopravdano' s obzirom na ekonomske izazove.",
-                imageUrl = null,
-                category = "Politika",
+                uuid = "72bd09dc-f28c-48d7-a64f-8fc36c4a46cf",
+                title = "1,000-foot Tsunami warning! Cascadia megaquake could wipe parts of America off the map",
+                snippet = "1000 foot Tsunami warning\n\nCascadia fault: A 600-mile earthquake risk under the US\n\nThe dual threat: Earthquake + climate change\n\nCoastal land could sink by up ...",
+                imageUrl = "https://static.toiimg.com/thumb/msid-121437037,width-1070,height-580,imgsize-81916,resizemode-75,overlay-toi_sw,pt-32,y_pad-40/photo.jpg",
+                category = "science",
                 isFeatured = false,
-                source = "Index.hr",
-                publishedDate = "08-04-2025"
+                source = "timesofindia.indiatimes.com",
+                publishedDate = "27-05-2025"
             ),
             NewsItem(
-                id = "16",
-                title = "\"Zapanjujuće otkriće\": Tamna energija možda se mijenja, i to bi moglo promijeniti sve",
-                snippet = "Najnovija istraživanja projekta DESI sugeriraju da tamna energija možda nije stalna, kako se dosad vjerovalo. Otkriće bi moglo dramatično promijeniti kozmologiju kakvu poznajemo.",
-                imageUrl = null,
-                category = "Nauka/tehnologija",
-                isFeatured = true,
-                source = "Indexx.hr",
-                publishedDate = "02-04-2025"
-            ),
-            NewsItem(
-                id = "17",
-                title = "Parkinsonova bolest povezana s bakterijama. Mogla bi se liječiti?",
-                snippet = "Nova studija povezuje Parkinsonovu bolest s bakterijama u crijevima koje omogućuju proizvodnju vitamina B, što sugerira da bi bolest mogla biti prevenirana ili liječena.",
-                imageUrl = null,
-                category = "Nauka/tehnologija",
-                isFeatured = true,
-                source = "Indeex.hr",
-                publishedDate = "29-03-2025"
-            ),
-            NewsItem(
-                id = "18",
-                title = "Žvakaće gume otpuštaju stotine čestica mikroplastike u usta, pokazuje studija",
-                snippet = "Studija pokazuje da žvakaće gume otpuštaju stotine čestica mikroplastike u usta, iako je istraživanje oprezno u procjeni njihovog utjecaja na zdravlje.",
-                imageUrl = null,
-                category = "Nauka/tehnologija",
-                isFeatured = true,
-                source = "SciTechDaily",
-                publishedDate = "26-03-2025"
-            ),
-            NewsItem(
-                id = "19",
-                title = "Plenković: Nedopustiv je ishod u kojem Rusija dobija okupirani ukrajinski teritorij",
-                snippet = "Premijer Andrej Plenković izjavio je da EU mora raditi na svojoj strateškoj autonomiji, te da je ishod u kojem Rusija zadrži okupirane teritorije Ukrajine nedopustiv.",
-                imageUrl = null,
-                category = "Politika",
-                isFeatured = true,
-                source = "Index.hr",
-                publishedDate = "02-04-2025"
-            ),
-            NewsItem(
-                id = "20",
-                title = "Ćelije kože emitiraju električne impulse nakon povrede",
-                snippet = "Oštećene ćelije kože, poput keratinocita prikazanih na elektronskoj mikrografiji sa strane, šalju električne impulse, otkriva nova studija. Ovaj signal može poslužiti kao signal koji poziva susjedne ćelije da započnu proces zacjeljivanja povrede.",
-                imageUrl = null,
-                category = "Nauka/tehnologija",
+                uuid = "20659a1c-7754-48e6-a8fa-07db93d2041b",
+                title = "Stanotte nuovo volo per Starship, test chiave verso Luna e Marte",
+                snippet = "E’ previsto alle 1:30 italiane del 28 maggio il nono volo di prova di Starship, la nave di SpaceX progettata per le future missioni verso Luna e Marte. Un tes...",
+                imageUrl = "https://www.ansa.it/webimages/img_1129x635/2025/5/27/e2876922503dbd6b16798b76f3529d94.jpeg",
+                category = "science",
                 isFeatured = false,
-                source = "SciTechDailyyy",
-                publishedDate = "02-04-2025"
+                source = "ansa.it",
+                publishedDate = "27-05-2025"
+            ),
+            NewsItem(
+                uuid = "99729e6e-a48e-49bc-a089-0e927d7f274e",
+        title = "Summer transfers each top Premier League club should make",
+        snippet = "Open Extended Reactions\n\nThe Premier League is in a weird spot, and it's a particular kind of weirdness that could make this one of the most active summers of t...",
+        imageUrl = "https://a3.espncdn.com/combiner/i?img=%2Fphoto%2F2025%2F0404%2Fr1473457_1296x729_16%2D9.jpg",
+        category = "sports",
+        isFeatured = false,
+        source = "espn.com",
+        publishedDate = "2025-05-27T12:13:07.000000Z"
+        ),
+            NewsItem(
+                uuid = "7d3a1a0e-5a79-4e10-825e-5cf2064ca1b3",
+        title = "Jose Mourinho expects to stay at Fenerbahce for second season",
+        snippet = "Open Extended Reactions\n\nJose Mourinho is expecting to be at Fenerbahce next season. Ahmad Mora/Getty Images\n\nFenerbahce coach Jose Mourinho has said he expects...",
+        imageUrl = "https://a2.espncdn.com/combiner/i?img=%2Fphoto%2F2024%2F1210%2Fr1426287_1296x729_16%2D9.jpg",
+        category = "sports",
+        isFeatured = false,
+        source = "espn.com",
+        publishedDate = "2025-05-27T12:11:45.000000Z"
+        ),
+            NewsItem(
+                uuid = "9f489659-123a-4249-90ee-cc666a1d2c72",
+                title = "Ruben Amorim: Missing Champions League could benefit Man United next season",
+                snippet = "Ruben Amorim speaks about how not playing in the Champions League could benefit Manchester United next season. (0:53)\n\nAmorim: Not being in the UCL could be an ...",
+                imageUrl = "https://a3.espncdn.com/combiner/i?img=%2Fphoto%2F2025%2F0527%2Fr1498904_1296x729_16%2D9.jpg",
+                category = "sports",
+                isFeatured = false,
+                source = "espn.com",
+                publishedDate = "2025-05-27T12:11:45.000000Z"
             )
 
-        ).sortedBy { it.id.toInt()}
+
+        )
+        return emptyList();
     }
 }

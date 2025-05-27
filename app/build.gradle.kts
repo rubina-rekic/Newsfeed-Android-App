@@ -59,8 +59,20 @@ dependencies {
     implementation(libs.coil.compose)
     androidTestImplementation("org.jetbrains.kotlin:kotlin-test-junit")
     testImplementation(kotlin("test"))
+
     implementation ("androidx.navigation:navigation-compose:2.7.3")
 
     implementation("androidx.compose.material3:material3:1.2.1")
-
+    //ovi ispod su dodani radi serializable anot u NewsItem klasi
+    implementation("io.ktor:ktor-client-core:2.3.5")
+    implementation("io.ktor:ktor-client-cio:2.3.5")
+    implementation("io.ktor:ktor-client-content-negotiation:2.3.5")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.5")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    //
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.retrofit2:retrofit:+")
+    implementation("com.squareup.retrofit2:converter-gson:+")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:???")
 }

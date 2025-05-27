@@ -1,7 +1,5 @@
 package etf.ri.rma.newsfeedapp.screen
 
-import android.R.attr.background
-import android.R.id.background
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,10 +13,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import etf.ri.rma.newsfeedapp.model.NewsItem
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.res.painterResource
-import etf.ri.rma.newsfeedapp.R
+import coil.compose.rememberAsyncImagePainter
+import etf.ri.rma.newsfeedapp.model.NewsItem
+
 @Composable
 fun FeaturedNewsCard(item: NewsItem, onClick: () -> Unit) {
     Box(
@@ -27,51 +25,52 @@ fun FeaturedNewsCard(item: NewsItem, onClick: () -> Unit) {
             .clickable { onClick() }
             .padding(8.dp)
     ) {
-    Card(
-
-        modifier = Modifier.background(color = Color(0xFFFFFACD))
-            .padding(8.dp)
-            .fillMaxWidth()
-            .testTag("featured_news_card"),
-        shape = RoundedCornerShape(8.dp),
-
-
-    ) {
-        Column(
-            modifier = Modifier.background(color = Color(0xFFFFFACD))
-                .fillMaxWidth()
+        Card(
+            modifier = Modifier
+                .background(color = MaterialTheme.colorScheme.surface)
                 .padding(8.dp)
+                .fillMaxWidth()
+                .testTag("featured_news_card"),
+            shape = RoundedCornerShape(16.dp),
         ) {
-            Image(
-                painter = painterResource(R.drawable.slikarma),
-                contentDescription = "image",
+            Column(
                 modifier = Modifier
-                    .height(200.dp)
-                    .fillMaxWidth(),
-                contentScale = ContentScale.Crop
-            )
+                    .background(color = MaterialTheme.colorScheme.surface)
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                // Load image dynamically using Coil
+                Image(
+                    painter = rememberAsyncImagePainter(item.imageUrl),
+                    contentDescription = "Featured News Image",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        .padding(bottom = 16.dp),
+                    contentScale = ContentScale.Crop
+                )
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = item.title,
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                maxLines = 2,
-                modifier = Modifier.testTag("news_title_${item.id}")
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = item.snippet,
-                style = MaterialTheme.typography.bodyMedium,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "Izvor: ${item.source} | ${item.publishedDate}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+                Text(
+                    text = item.title,
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.testTag("featured_news_title_${item.uuid}")
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = item.snippet,
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Izvor: ${item.source} | ${item.publishedDate}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
-    }}
+    }
 }
