@@ -1,5 +1,4 @@
 package etf.ri.rma.newsfeedapp.screen
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
@@ -24,14 +23,14 @@ fun NewsFeedScreen(navController: NavController? = null) {
     var savedDateTo by remember { mutableStateOf(filters?.get<String>("filters_dateTo")) }
     var savedUnwantedWords by remember { mutableStateOf(filters?.get<List<String>>("filters_unwantedWords") ?: emptyList()) }
 
-    // State for showing the FilterScreen
+
     var showFilterScreen by rememberSaveable { mutableStateOf(false) }
 
     val displayedNews = remember { mutableStateListOf<NewsItem>() }
     val coroutineScope = rememberCoroutineScope()
     val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
 
-    // Trigger fetching news when filters change
+
     LaunchedEffect(savedCategory, savedDateFrom, savedDateTo, savedUnwantedWords) {
         coroutineScope.launch {
             val newsSourceList = if (savedCategory == "Sve") {
@@ -98,7 +97,6 @@ fun NewsFeedScreen(navController: NavController? = null) {
         ) {
             Text("NewsFeedApp", modifier = Modifier.testTag("news_header"))
 
-            // FilterSection now triggers showing the FilterScreen
             FilterSection(
                 selectedCategory = savedCategory,
                 onCategorySelected = { cat ->

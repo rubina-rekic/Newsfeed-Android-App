@@ -8,7 +8,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
@@ -39,7 +38,7 @@ fun FeaturedNewsCard(item: NewsItem, onClick: () -> Unit) {
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
-                // Load image dynamically using Coil
+
                 Image(
                     painter = rememberAsyncImagePainter(item.imageUrl),
                     contentDescription = "Featured News Image",

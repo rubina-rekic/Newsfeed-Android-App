@@ -24,11 +24,11 @@ object NewsDAO {
     private val _allStoriesList: MutableList<NewsItem> = Collections.synchronizedList(mutableListOf())
     private val allStoriesList: List<NewsItem> get() = _allStoriesList.toList()
 
-    // Cache za vrijeme posljednjeg dohvaćanja po API kategoriji
+
     private val lastFetchTimeByCategory: ConcurrentHashMap<String, Long> = ConcurrentHashMap()
 
     init {
-        // Popuni sa početnim vijestima iz NewsData samo jednom pri inicijalizaciji
+        //  početne vijesti iz NewsData pri inicijalizaciji
         if (_allStoriesList.isEmpty()) {
             val initial = NewsData.getAllNews()
             initial.forEach {
@@ -38,7 +38,10 @@ object NewsDAO {
         }
     }
 
+    fun getAllStories(): List<NewsItem> {
 
+        return allStoriesList.map { it.copy(isFeatured = false) }.toList()
+    }
 
 
     suspend fun getTopStoriesByCategory(category: String): List<NewsItem> {
@@ -46,15 +49,15 @@ object NewsDAO {
 
 
         if (category == "Sve") {
-            // Vijesti se vraćaju kao standardne (ne-featured) za ovu globalnu listu
+            // Vijesti se vraćaju kao standardne
             return allStoriesList.map { it.copy(isFeatured = false) }.distinctBy { it.uuid }
         }
 
         val apiCategory = mapiranjeKat(category)
         val lastFetchTime = lastFetchTimeByCategory[apiCategory] ?: 0L
 
-        // Dohvati postojeće vijesti iz keša za ovu SPECIFIČNU kategoriju
-        // (bilo da je kategorija iz originalnog NewsData ili iz API poziva, mi ih filtriramo po kategoriji iz NewsItem-a)
+
+        // filtriramo po kategoriji iz NewsItem-a
         val cachedNewsForCategory = _allStoriesList
             .filter { it.category.equals(category, ignoreCase = true) || it.category.equals(apiCategory, ignoreCase = true) }
             .map { it.copy(isFeatured = false) } // Ensure existing are not featured for this return
@@ -104,31 +107,15 @@ object NewsDAO {
                 return cachedNewsForCategory.distinctBy { it.uuid }
             }
         }else {
-            println("Vraćam keširane vijesti za kategoriju: $category (unutar 30 sekundi)")
-            // Ako nije prošlo 30 sekundi, vrati sve keširane vijesti za tu kategoriju
+
             return cachedNewsForCategory.distinctBy { it.uuid }
         }
     }
 
-    /**
-     * Vraća listu svih vijesti koje su dohvaćene sa web servisa tokom trenutnog korištenja aplikacije.
-     * Ova metoda ne poziva direktno web servis.
-     *
-     * @return Lista svih dohvaćenih vijesti.
-     */
-    fun getAllStories(): List<NewsItem> {
-        // Vraća sve vijesti iz keša kao standardne (ne-featured)
-        return allStoriesList.map { it.copy(isFeatured = false) }.toList()
-    }
 
-    /**
-     * Vraća 2 najsličnije vijesti sa proslijeđenim UUID-em iz iste kategorije.
-     * Ukoliko uuid nije u ispravnom formatu baca izuzetak InvalidUUIDException.
-     *
-     * @param uuid UUID vijesti za koju tražimo slične.
-     * @return Lista 2 najsličnije vijesti.
-     * @throws InvalidUUIDException Ako UUID nije u ispravnom formatu.
-     */
+
+
+
     fun getSimilarStories(uuid: String): List<NewsItem> {
         try {
             UUID.fromString(uuid) // Validacija UUID formata
@@ -137,11 +124,11 @@ object NewsDAO {
         }
 
         val originalStory = allStoriesMap[uuid]
-            ?: return emptyList() // Ako originalna vijest nije pronađena, vrati praznu listu
+            ?: return emptyList() // ako nema org vijesit vrati praznu listu
 
         val similarStories = allStoriesList
             .filter { it.category == originalStory.category && it.uuid != originalStory.uuid }
-            .shuffled() // Simulacija sličnosti, uzima nasumično 2 iz iste kategorije
+            .shuffled()
             .take(2)
 
         return similarStories
