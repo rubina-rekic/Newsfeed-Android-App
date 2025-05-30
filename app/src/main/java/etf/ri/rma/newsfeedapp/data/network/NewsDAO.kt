@@ -53,70 +53,41 @@ class NewsDAO {
 
     suspend fun getTopStoriesByCategory(category: String): List<NewsItem> {
         val currentTime = System.currentTimeMillis()
-
-
-        if (category == "Sve") {
-            // Vijesti se vraćaju kao standardne
-            return allStoriesList.map { it.copy(isFeatured = false) }.distinctBy { it.uuid }
-        }
-
         val apiCategory = mapiranjeKat(category)
         val lastFetchTime = lastFetchTimeByCategory[apiCategory] ?: 0L
 
-
-        // filtriramo po kategoriji iz NewsItem-a
+        // Filter cached news for the category
         val cachedNewsForCategory = _allStoriesList
             .filter { it.category.equals(category, ignoreCase = true) || it.category.equals(apiCategory, ignoreCase = true) }
-            .map { it.copy(isFeatured = false) } // Ensure existing are not featured for this return
             .toMutableList()
 
+        if (currentTime - lastFetchTime <= 30 * 1000L) {
+            // Return cached news if the method was called within the last 30 seconds
+            return cachedNewsForCategory.take(3) // Ensure only 3 items are returned
+        }
 
-        if (currentTime - lastFetchTime > 30 * 1000L) { // 30 seconds passed, call web service
-            println("Calling web service for category: $category (API: $apiCategory)")
-            try {
-                val newsResponse = apiService.searchNews(API_TOKEN, apiCategory)
+        try {
+            // Fetch new news from the web service
+            val newsResponse = apiService.searchNews(API_TOKEN, apiCategory)
+            val newStoriesDTO = newsResponse.data
+            val newStoriesFromApi = newStoriesDTO.map { it.toNewsItem() }
 
-                val newStoriesDTO = newsResponse.data
-                val newStoriesFromApi = newStoriesDTO.map { it.toNewsItem() }
+            // Update last fetch time
+            lastFetchTimeByCategory[apiCategory] = currentTime
 
-                lastFetchTimeByCategory[apiCategory] = currentTime // Update fetch time for API category
-
-                val resultListForUI = mutableListOf<NewsItem>()
-
-                // Add new stories from API to the result list and update the cache
-                newStoriesFromApi.forEach { newStory ->
-                    val existingStory = allStoriesMap[newStory.uuid]
-                    if (existingStory != null) {
-                        // Story already exists, mark it as featured and add to result list
-                        val updatedExisting = existingStory.copy(isFeatured = true)
-                        resultListForUI.add(updatedExisting)
-                    } else {
-                        // New story, add to cache and mark as featured
-                        val featuredNewStory = newStory.copy(isFeatured = true)
-                        allStoriesMap[featuredNewStory.uuid] = featuredNewStory
-                        _allStoriesList.add(0, featuredNewStory) // Add to the beginning of the global list
-                        resultListForUI.add(featuredNewStory)
-                    }
-                }
-
-                // Add remaining cached news for this category that are not already in the result list
-                cachedNewsForCategory.forEach { existingCachedNews ->
-                    if (resultListForUI.none { it.uuid == existingCachedNews.uuid }) {
-                        resultListForUI.add(existingCachedNews.copy(isFeatured = false)) // Add as standard news
-                    }
-                }
-
-                // Ensure uniqueness and correct order
-                return resultListForUI.distinctBy { it.uuid }
-
-            } catch (e: Exception) {
-                println("Error fetching news from web service for category $category: ${e.message}")
-                // If API call fails, return cached news for the category
-                return cachedNewsForCategory.distinctBy { it.uuid }
+            // Add 3 new featured news items to the cached list
+            val newFeaturedNews = newStoriesFromApi.take(3).map { it.copy(isFeatured = true) }
+            newFeaturedNews.forEach { newStory ->
+                allStoriesMap[newStory.uuid] = newStory
+                _allStoriesList.add(0, newStory) // Add to the beginning of the global list
             }
-        }else {
 
-            return cachedNewsForCategory.distinctBy { it.uuid }
+            // Combine cached news and new featured news
+            return (newFeaturedNews + cachedNewsForCategory).distinctBy { it.uuid }.take(3)
+        } catch (e: Exception) {
+            println("Error fetching news from web service for category $category: ${e.message}")
+            // If API call fails, return cached news for the category
+            return cachedNewsForCategory.take(3)
         }
     }
 

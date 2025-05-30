@@ -1,5 +1,6 @@
 package etf.ri.rma.newsfeedapp.screen
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
@@ -40,6 +41,9 @@ fun NewsFeedScreen(navController: NavController? = null) {
     val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
 
     fun refreshDisplayedNews() {
+        //radi testiranja
+        Log.d("NewsFeedScreen", "Refreshing displayed news for category: $savedCategory")
+
         val allNews = allFetchedNews[savedCategory] ?: emptyList()
 
         // Filtriranje po nepoželjnim riječima
@@ -61,10 +65,12 @@ fun NewsFeedScreen(navController: NavController? = null) {
                 }
             }
         }
+        Log.i("NewsFeedScreen", "Filtered ${filtered.size} news items after applying filters")
 
         // Reset prikaza
         featuredNews.clear()
         standardNews.clear()
+
 
         val featured = filtered.take(3).map { it.copy(isFeatured = true) }
         val standard = filtered.drop(3).map { it.copy(isFeatured = false) }
@@ -84,6 +90,8 @@ fun NewsFeedScreen(navController: NavController? = null) {
             val news = if (savedCategory == "Sve") {
                 newsDAO.getAllStories() // Pozivanje metode za sve vijesti
             } else {
+                Log.d("NewsFeedScreen", "Loading news for category: $savedCategory")
+
                 newsDAO.getTopStoriesByCategory(savedCategory) // Pozivanje metode za vijesti po kategoriji
             }
 
