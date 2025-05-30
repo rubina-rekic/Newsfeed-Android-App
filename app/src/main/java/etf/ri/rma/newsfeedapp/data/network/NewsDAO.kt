@@ -1,13 +1,20 @@
-package etf.ri.rma.newsfeedapp.data
-import etf.ri.rma.newsfeedapp.data.api.RetrofitInstance
-import etf.ri.rma.newsfeedapp.exception.InvalidUUIDException
+package etf.ri.rma.newsfeedapp.data.network
+
+import etf.ri.rma.newsfeedapp.data.NewsData
+import etf.ri.rma.newsfeedapp.data.network.api.NewsApiService
+import etf.ri.rma.newsfeedapp.data.toNewsItem
+import etf.ri.rma.newsfeedapp.data.network.exception.InvalidUUIDException
 import etf.ri.rma.newsfeedapp.model.NewsItem
+import java.util.Collections
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
-import java.util.Collections
 
+class NewsDAO {
+    private var apiService: NewsApiService = RetrofitInstance.api
 
-object NewsDAO {
+    fun setApiService(service: NewsApiService) {
+        apiService = service
+    }
     // za mapiranje kategorija
     private fun mapiranjeKat(category: String): String {
         return when (category) {
@@ -19,7 +26,7 @@ object NewsDAO {
         }
     }
 
-    private const val API_TOKEN = "9qfGW6bjGV8oAl5Dkvel4H1LqF3ofl7UyJoxdtyh"
+    private  val API_TOKEN = "9qfGW6bjGV8oAl5Dkvel4H1LqF3ofl7UyJoxdtyh"
     private val allStoriesMap: ConcurrentHashMap<String, NewsItem> = ConcurrentHashMap()
     private val _allStoriesList: MutableList<NewsItem> = Collections.synchronizedList(mutableListOf())
     private val allStoriesList: List<NewsItem> get() = _allStoriesList.toList()
@@ -67,7 +74,8 @@ object NewsDAO {
         if (currentTime - lastFetchTime > 30 * 1000L) { // 30 seconds passed, call web service
             println("Calling web service for category: $category (API: $apiCategory)")
             try {
-                val newsResponse = RetrofitInstance.api.searchNews(API_TOKEN, apiCategory)
+                val newsResponse = apiService.searchNews(API_TOKEN, apiCategory)
+
                 val newStoriesDTO = newsResponse.data
                 val newStoriesFromApi = newStoriesDTO.map { it.toNewsItem() }
 

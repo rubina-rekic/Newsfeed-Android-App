@@ -1,6 +1,6 @@
-package etf.ri.rma.newsfeedapp.data.api
+package etf.ri.rma.newsfeedapp.data.network
 
-import etf.ri.rma.newsfeedapp.data.api.NewsApi
+import etf.ri.rma.newsfeedapp.data.network.api.NewsApiService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -12,7 +12,7 @@ object RetrofitInstance {
             .build()
     }
 
-    val api: NewsApi by lazy {
-        retrofit.create(NewsApi::class.java)
+    val api: NewsApiService by lazy {
+        retrofit.create(NewsApiService::class.java)
     }
 }

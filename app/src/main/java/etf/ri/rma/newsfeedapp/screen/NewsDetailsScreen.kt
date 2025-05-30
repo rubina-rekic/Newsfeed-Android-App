@@ -1,16 +1,14 @@
 package etf.ri.rma.newsfeedapp.screen
 
-import android.widget.Toast
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
+
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -19,11 +17,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import etf.ri.rma.newsfeedapp.dao.ImageDAO
-import etf.ri.rma.newsfeedapp.data.NewsDAO
+import etf.ri.rma.newsfeedapp.data.network.NewsDAO
 import etf.ri.rma.newsfeedapp.data.NewsData
-import etf.ri.rma.newsfeedapp.exception.InvalidImageURLException
-import etf.ri.rma.newsfeedapp.exception.InvalidUUIDException
+import etf.ri.rma.newsfeedapp.data.network.exception.InvalidImageURLException
+import etf.ri.rma.newsfeedapp.data.network.exception.InvalidUUIDException
 import etf.ri.rma.newsfeedapp.model.NewsItem
 
 @Composable
@@ -31,28 +28,32 @@ fun NewsDetailsScreen(
     navController: NavController,
     newsId: String
 ) {
+    // Tražimo vijest prema UUID-u
     val news = remember { NewsData.getAllNews().find { it.uuid == newsId } }
 
-    // Fetch similar stories based on UUID
+    // Kreiramo instancu NewsDAO
+    val newsDAO = NewsDAO()
+
+    // Dohvatimo slične vijesti na osnovu UUID-a
     val similarNews = remember {
         news?.let {
             try {
-                NewsDAO.getSimilarStories(it.uuid)
+                newsDAO.getSimilarStories(it.uuid)
             } catch (e: InvalidUUIDException) {
-                emptyList<NewsItem>()
+                emptyList<NewsItem>() // Ako je UUID nevažeći, vratimo praznu listu
             }
-        } ?: emptyList<NewsItem>()
+        } ?: emptyList<NewsItem>() // Ako vijest ne postoji, vraćamo praznu listu
     }
 
-    // Handle invalid news
+    // Ako vijest nije pronađena, prikazujemo poruku
     if (news == null) {
         Text("Vijest nije pronađena", modifier = Modifier.padding(16.dp))
         return
     }
 
-    // Rest of your screen layout...
+    // Osnovni izgled ekrana za prikaz vijesti
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        // News details
+        // Prikazujemo detalje vijesti
         Text(news.title, style = MaterialTheme.typography.titleLarge, modifier = Modifier.testTag("details_title"))
         Spacer(modifier = Modifier.height(8.dp))
         Text(news.snippet, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.testTag("details_snippet"))
@@ -65,7 +66,7 @@ fun NewsDetailsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Image and tags for news
+        // Prikaz slike vijesti, ako postoji
         news.imageUrl?.let { imageUrl ->
             Image(
                 painter = rememberAsyncImagePainter(imageUrl),
@@ -76,7 +77,7 @@ fun NewsDetailsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Similar stories section
+        // Prikazivanje povezanih vijesti
         Text("Povezane vijesti iz iste kategorije", style = MaterialTheme.typography.titleMedium)
         Column(modifier = Modifier.testTag("news_list")) {
             similarNews.forEachIndexed { index, related ->
@@ -95,10 +96,10 @@ fun NewsDetailsScreen(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Button to close details
+        // Dugme za zatvaranje detalja vijesti
         Button(
             onClick = {
-                navController.navigate("news_feed")
+                navController.navigate("news_feed") // Povratak na ekran sa svim vijestima
             },
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
