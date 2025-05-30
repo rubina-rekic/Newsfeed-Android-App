@@ -18,13 +18,14 @@ class NewsDAO {
     // za mapiranje kategorija
     private fun mapiranjeKat(category: String): String {
         return when (category) {
-            "Politika" -> "politics"
-            "Sport" -> "sports"
-            "Nauka/tehnologija" -> "science" //  sta sa techh ???
-            "Zdravlje" -> "health"
+            "Politika", "politics" -> "politics"
+            "Sport", "sports" -> "sports"
+            "Nauka/tehnologija", "science", "technology" -> "science"
+            "Zdravlje", "health" -> "health"
             else -> "general"
         }
     }
+
 
     private  val API_TOKEN = "9qfGW6bjGV8oAl5Dkvel4H1LqF3ofl7UyJoxdtyh"
     private val allStoriesMap: ConcurrentHashMap<String, NewsItem> = ConcurrentHashMap()
@@ -68,7 +69,7 @@ class NewsDAO {
 
         try {
             // Fetch new news from the web service
-            val newsResponse = apiService.searchNews(API_TOKEN, apiCategory)
+            val newsResponse = apiService.searchNews(apiCategory,API_TOKEN)
             val newStoriesDTO = newsResponse.data
             val newStoriesFromApi = newStoriesDTO.map { it.toNewsItem() }
 
@@ -95,21 +96,21 @@ class NewsDAO {
 
 
 
-    fun getSimilarStories(uuid: String): List<NewsItem> {
+    suspend fun getSimilarStories(uuid: String): List<NewsItem> {
         try {
-            UUID.fromString(uuid) // Validacija UUID formata
+            UUID.fromString(uuid) // Validate UUID format
         } catch (e: IllegalArgumentException) {
             throw InvalidUUIDException("Invalid UUID format: $uuid")
         }
 
-        val originalStory = allStoriesMap[uuid]
-            ?: return emptyList() // ako nema org vijesit vrati praznu listu
-
-        val similarStories = allStoriesList
-            .filter { it.category == originalStory.category && it.uuid != originalStory.uuid }
-            .shuffled()
-            .take(2)
-
-        return similarStories
+        try {
+            // Make API call to fetch similar stories
+            val response = apiService.getSimilarStories(uuid, API_TOKEN)
+            val similarStoriesDTO = response.data
+            return similarStoriesDTO.map { it.toNewsItem() }
+        } catch (e: Exception) {
+            println("Error fetching similar stories for UUID $uuid: ${e.message}")
+            return emptyList() // Return an empty list if the API call fails
+        }
     }
 }

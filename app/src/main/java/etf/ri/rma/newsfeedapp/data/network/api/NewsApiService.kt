@@ -7,7 +7,13 @@ import retrofit2.http.Query
 interface NewsApiService {
     @GET("top")
     suspend fun searchNews(
-        @Query("api_token") apiToken: String,
-        @Query("categories") category: String
+        @Query("categories") category: String,
+        @Query("api_token") apiToken: String
+    ): NewsResponse
+
+    @GET("news/similar")
+    suspend fun getSimilarStories(
+        @Query("uuid") uuid: String,
+        @Query("api_token") apiToken: String
     ): NewsResponse
 }

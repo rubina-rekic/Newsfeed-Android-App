@@ -12,22 +12,28 @@ class ImagaDAO {
     fun setApiService(apiService: ImagaApiService) {
         this.apiService = apiService
     }
+    fun isValidUrl(url: String): Boolean {
+        return url.startsWith("http://") || url.startsWith("https://")
+    }
+
     suspend fun getTags(imageUrl: String): List<String> {
-        // Provjera da li tagove već imamo u cache-u
+        if (!isValidUrl(imageUrl)) {
+            throw InvalidImageURLException("Invalid image URL: $imageUrl")
+        }
+
         tagCache[imageUrl]?.let {
-            return it // Ako imamo tagove u cache-u, vratit ćemo ih odmah
+            return it
         }
 
-        // Ako tagovi nisu u cache-u, pozivamo API
         val tags = try {
-            val response = ImageRetrofitInstance.api.getImageTags(imageUrl, "9qfGW6bjGV8oAl5Dkvel4H1LqF3ofl7UyJoxdtyh") // Zamijeni sa stvarnim API ključem
-            response.result.tags.map { it.tag }
+            val response = apiService?.getImageTags(imageUrl, "acc_44ab43a18796aca")
+                ?: throw InvalidImageURLException("API service not initialized")
+            response.result.tags.map { it.tag.en } // Access the nested `en` field
         } catch (e: Exception) {
-            throw InvalidImageURLException("Neispravan URL slike ili greška u API pozivu")
+            throw InvalidImageURLException("Error during API call: ${e.message}")
         }
-
-        // Spremamo dobijene tagove u cache
         tagCache[imageUrl] = tags
         return tags
     }
+
 }

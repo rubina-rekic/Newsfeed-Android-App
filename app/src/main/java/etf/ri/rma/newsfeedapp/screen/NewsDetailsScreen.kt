@@ -6,6 +6,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 
 import androidx.compose.runtime.remember
 
@@ -31,24 +33,25 @@ fun NewsDetailsScreen(
     // Tražimo vijest prema UUID-u
     val news = remember { NewsData.getAllNews().find { it.uuid == newsId } }
 
-    // Kreiramo instancu NewsDAO
-    val newsDAO = NewsDAO()
-
-    // Dohvatimo slične vijesti na osnovu UUID-a
-    val similarNews = remember {
-        news?.let {
-            try {
-                newsDAO.getSimilarStories(it.uuid)
-            } catch (e: InvalidUUIDException) {
-                emptyList<NewsItem>() // Ako je UUID nevažeći, vratimo praznu listu
-            }
-        } ?: emptyList<NewsItem>() // Ako vijest ne postoji, vraćamo praznu listu
-    }
-
     // Ako vijest nije pronađena, prikazujemo poruku
     if (news == null) {
         Text("Vijest nije pronađena", modifier = Modifier.padding(16.dp))
         return
+    }
+
+    // Kreiramo instancu NewsDAO
+    val newsDAO = remember { NewsDAO() }
+
+    // Kreiramo mutable state za slične vijesti
+    val similarNews = remember { mutableStateOf<List<NewsItem>>(emptyList()) }
+
+    // Dohvatimo slične vijesti asinkrono koristeći LaunchedEffect
+    LaunchedEffect(newsId) {
+        try {
+            similarNews.value = newsDAO.getSimilarStories(news.uuid)
+        } catch (e: InvalidUUIDException) {
+            similarNews.value = emptyList() // Ako je UUID nevažeći, vratimo praznu listu
+        }
     }
 
     // Osnovni izgled ekrana za prikaz vijesti
@@ -80,7 +83,7 @@ fun NewsDetailsScreen(
         // Prikazivanje povezanih vijesti
         Text("Povezane vijesti iz iste kategorije", style = MaterialTheme.typography.titleMedium)
         Column(modifier = Modifier.testTag("news_list")) {
-            similarNews.forEachIndexed { index, related ->
+            similarNews.value.forEachIndexed { index, related ->
                 Text(
                     text = related.title,
                     style = MaterialTheme.typography.bodyMedium,

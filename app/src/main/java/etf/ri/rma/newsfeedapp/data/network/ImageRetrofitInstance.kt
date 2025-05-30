@@ -7,7 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 object ImageRetrofitInstance {
     private val retrofit by lazy {
         Retrofit.Builder()
-            .baseUrl("https://api.imagga.com/")  // Base URL za Imagga API
+            .baseUrl("https://api.imagga.com/") // Ensure this matches the test setup
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
