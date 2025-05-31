@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import etf.ri.rma.newsfeedapp.data.network.NewsDAO
 import etf.ri.rma.newsfeedapp.model.NewsItem
-import kotlinx.coroutines.launch
+
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -65,18 +65,23 @@ fun NewsFeedScreen(navController: NavController? = null) {
                 }
             }
         }
-        Log.i("NewsFeedScreen", "Filtered ${filtered.size} news items after applying filters")
 
         // Reset prikaza
         featuredNews.clear()
         standardNews.clear()
 
 
-        val featured = filtered.take(3).map { it.copy(isFeatured = true) }
-        val standard = filtered.drop(3).map { it.copy(isFeatured = false) }
+        if (savedCategory == "Sve") {
+            // Sve vijesti kao standardne
+            standardNews.addAll(filtered.map { it.copy(isFeatured = false) })
+        } else {
+            // Prve 3 kao featured, ostale kao standard
+            val featured = filtered.take(3).map { it.copy(isFeatured = true) }
+            val standard = filtered.drop(3).map { it.copy(isFeatured = false) }
 
-        featuredNews.addAll(featured)
-        standardNews.addAll(standard)
+            featuredNews.addAll(featured)
+            standardNews.addAll(standard)
+        }
     }
 
     LaunchedEffect(savedCategory) {
@@ -90,8 +95,6 @@ fun NewsFeedScreen(navController: NavController? = null) {
             val news = if (savedCategory == "Sve") {
                 newsDAO.getAllStories() // Pozivanje metode za sve vijesti
             } else {
-                Log.d("NewsFeedScreen", "Loading news for category: $savedCategory")
-
                 newsDAO.getTopStoriesByCategory(savedCategory) // Pozivanje metode za vijesti po kategoriji
             }
 
