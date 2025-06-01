@@ -1,11 +1,11 @@
 package etf.ri.rma.newsfeedapp.data.network
-
-import etf.ri.rma.newsfeedapp.data.NewsData
-import etf.ri.rma.newsfeedapp.data.network.api.NewsApiService
-import etf.ri.rma.newsfeedapp.data.toNewsItem
 import etf.ri.rma.newsfeedapp.data.network.exception.InvalidUUIDException
 import etf.ri.rma.newsfeedapp.model.NewsItem
 import java.util.Collections
+import etf.ri.rma.newsfeedapp.data.NewsData
+import etf.ri.rma.newsfeedapp.data.network.api.NewsApiService
+import etf.ri.rma.newsfeedapp.data.toNewsItem
+
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
@@ -15,6 +15,7 @@ class NewsDAO {
     fun setApiService(service: NewsApiService) {
         apiService = service
     }
+
     // za mapiranje kategorija
     private fun mapiranjeKat(category: String): String {
         return when (category) {
@@ -26,20 +27,18 @@ class NewsDAO {
         }
     }
 
-
-    private  val API_TOKEN = "9qfGW6bjGV8oAl5Dkvel4H1LqF3ofl7UyJoxdtyh"
-    private val allStoriesMap: ConcurrentHashMap<String, NewsItem> = ConcurrentHashMap()
+    private val allStoriess: ConcurrentHashMap<String, NewsItem> = ConcurrentHashMap()
     private val _allStoriesList: MutableList<NewsItem> = Collections.synchronizedList(mutableListOf())
     private val allStoriesList: List<NewsItem> get() = _allStoriesList.toList()
 
-
-    private val lastFetchTimeByCategory: ConcurrentHashMap<String, Long> = ConcurrentHashMap()
+    private  val API_TOKEN = "9qfGW6bjGV8oAl5Dkvel4H1LqF3ofl7UyJoxdtyh"
+    private val lastFetch: ConcurrentHashMap<String, Long> = ConcurrentHashMap()
 
     init {
         if (_allStoriesList.isEmpty()) {
             val initial = NewsData.getAllNews()
             initial.forEach {
-                allStoriesMap[it.uuid] = it
+                allStoriess[it.uuid] = it
                 _allStoriesList.add(it.copy(isFeatured = false))
             }
         }
@@ -54,13 +53,13 @@ class NewsDAO {
     suspend fun getTopStoriesByCategory(category: String): List<NewsItem> {
         val currentTime = System.currentTimeMillis()
         val apiCategory = mapiranjeKat(category)
-        val lastFetchTime = lastFetchTimeByCategory[apiCategory] ?: 0L
+        val lastFetchTime = lastFetch[apiCategory] ?: 0L
 
         val cachedNewsForCategory = _allStoriesList
             .filter { mapiranjeKat(it.category) == apiCategory }
             .distinctBy { it.uuid }
 
-        // If less than 30 seconds have passed, return cached news for the category
+       //manje od 30- vrati kesirane
         if (currentTime - lastFetchTime < 30 * 1000L) {
             return cachedNewsForCategory.map { it.copy(isFeatured = false) }
         }
@@ -72,12 +71,12 @@ class NewsDAO {
 
             // Add new stories to the "Sve" category and mark them as featured
             val newFeatured = newFetched.map { new ->
-                val existing = allStoriesMap[new.uuid]
+                val existing = allStoriess[new.uuid]
                 if (existing != null) {
                     existing.copy(isFeatured = true)
                 } else {
                     val fresh = new.copy(isFeatured = true)
-                    allStoriesMap[fresh.uuid] = fresh
+                    allStoriess[fresh.uuid] = fresh
                     _allStoriesList.add(0, fresh)
                     fresh
                 }
@@ -86,7 +85,7 @@ class NewsDAO {
             // Add new stories to the "Sve" category
             newFeatured.forEach { fresh ->
                 if (mapiranjeKat(fresh.category) != "general") {
-                    val generalCategoryNews = allStoriesMap[fresh.uuid]
+                    val generalCategoryNews = allStoriess[fresh.uuid]
                     if (generalCategoryNews == null) {
                         _allStoriesList.add(fresh.copy(category = "general"))
                     }
@@ -99,7 +98,7 @@ class NewsDAO {
                 .map { it.copy(isFeatured = false) }
 
             // Update the last fetch time
-            lastFetchTimeByCategory[apiCategory] = currentTime
+            lastFetch[apiCategory] = currentTime
 
             return newFeatured + previousStandard
         } catch (e: Exception) {
@@ -111,9 +110,9 @@ class NewsDAO {
 
     suspend fun getSimilarStories(uuid: String): List<NewsItem> {
         try {
-            UUID.fromString(uuid) // Validate UUID format
+            UUID.fromString(uuid)
         } catch (e: IllegalArgumentException) {
-            throw InvalidUUIDException("Invalid UUID format: $uuid")
+            throw InvalidUUIDException("Nevalidan UUID: $uuid")
         }
 
         try {
@@ -122,7 +121,7 @@ class NewsDAO {
             val similarStoriesDTO = response.data
             return similarStoriesDTO.map { it.toNewsItem() }
         } catch (e: Exception) {
-            println("Error fetching similar stories for UUID $uuid: ${e.message}")
+            println("Error: ${e.message}")
             return emptyList() // Return an empty list if the API call fails
         }
     }

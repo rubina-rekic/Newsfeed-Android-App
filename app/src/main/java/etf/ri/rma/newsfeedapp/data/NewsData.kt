@@ -4,7 +4,16 @@ import etf.ri.rma.newsfeedapp.model.NewsItem
 object NewsData {
     fun getAllNews(): List<NewsItem> {
         return listOf(
-
+                NewsItem(
+                    uuid = "42acb8c8-54ca-41b6-b703-fd3789f0385b",
+                    title = "Slushy start: warmer winter a downer for ski slopes",
+                    snippet = "The first dustings of winter snow have arrived on Australian mountaintops but long-range weather forecasts suggest it could be slow start to the ski season.\n\nSk...",
+                    imageUrl = "https://michaelwest.com.au/wp-content/uploads/2025/06/2cae69ef-2833-449b-a3e7-3ee326eea1b0.jpg",
+                    category = "general", // uzimamo prvu kategoriju iz liste
+                    isFeatured = false, // podaci to ne navode, postavljamo na false
+                    source = "michaelwest.com.au",
+                    publishedDate = "05-05-2025"
+                ),
             NewsItem(
                 uuid = "66d23d1c-12c8-4365-b580-1513c74d7641",
                 title = "Russia warns US about Golden Dome scheme",
