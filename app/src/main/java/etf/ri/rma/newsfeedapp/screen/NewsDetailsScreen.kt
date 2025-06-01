@@ -1,26 +1,21 @@
 package etf.ri.rma.newsfeedapp.screen
 
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-
-import androidx.compose.runtime.remember
-
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import etf.ri.rma.newsfeedapp.data.network.NewsDAO
 import etf.ri.rma.newsfeedapp.data.NewsData
+import etf.ri.rma.newsfeedapp.data.network.ImagaDAO
+import etf.ri.rma.newsfeedapp.data.network.NewsDAO
+import etf.ri.rma.newsfeedapp.data.network.ImageRetrofitInstance
 import etf.ri.rma.newsfeedapp.data.network.exception.InvalidImageURLException
 import etf.ri.rma.newsfeedapp.data.network.exception.InvalidUUIDException
 import etf.ri.rma.newsfeedapp.model.NewsItem
@@ -30,33 +25,42 @@ fun NewsDetailsScreen(
     navController: NavController,
     newsId: String
 ) {
-    // Tražimo vijest prema UUID-u
     val news = remember { NewsData.getAllNews().find { it.uuid == newsId } }
 
-    // Ako vijest nije pronađena, prikazujemo poruku
     if (news == null) {
         Text("Vijest nije pronađena", modifier = Modifier.padding(16.dp))
         return
     }
 
-    // Kreiramo instancu NewsDAO
     val newsDAO = remember { NewsDAO() }
+    val imagaDAO = remember {
+        ImagaDAO().apply {
+            setApiService(ImageRetrofitInstance.api)
+        }
+    }
 
-    // Kreiramo mutable state za slične vijesti
     val similarNews = remember { mutableStateOf<List<NewsItem>>(emptyList()) }
+    val imageTags = remember { mutableStateOf<List<String>>(emptyList()) }
 
-    // Dohvatimo slične vijesti asinkrono koristeći LaunchedEffect
     LaunchedEffect(newsId) {
         try {
             similarNews.value = newsDAO.getSimilarStories(news.uuid)
         } catch (e: InvalidUUIDException) {
-            similarNews.value = emptyList() // Ako je UUID nevažeći, vratimo praznu listu
+            similarNews.value = emptyList()
         }
     }
 
-    // Osnovni izgled ekrana za prikaz vijesti
+    LaunchedEffect(news.imageUrl) {
+        news.imageUrl?.let { url ->
+            try {
+                imageTags.value = imagaDAO.getTags(url)
+            } catch (_: InvalidImageURLException) {
+                imageTags.value = listOf("Nepoznato")
+            }
+        }
+    }
+
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        // Prikazujemo detalje vijesti
         Text(news.title, style = MaterialTheme.typography.titleLarge, modifier = Modifier.testTag("details_title"))
         Spacer(modifier = Modifier.height(8.dp))
         Text(news.snippet, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.testTag("details_snippet"))
@@ -69,18 +73,26 @@ fun NewsDetailsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Prikaz slike vijesti, ako postoji
         news.imageUrl?.let { imageUrl ->
             Image(
                 painter = rememberAsyncImagePainter(imageUrl),
                 contentDescription = news.title,
                 modifier = Modifier.fillMaxWidth().height(200.dp)
             )
+
+            if (imageTags.value.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("Tagovi slike:", style = MaterialTheme.typography.titleSmall)
+                Text(
+                    imageTags.value.joinToString(", "),
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.testTag("details_image_tags")
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Prikazivanje povezanih vijesti
         Text("Povezane vijesti iz iste kategorije", style = MaterialTheme.typography.titleMedium)
         Column(modifier = Modifier.testTag("news_list")) {
             similarNews.value.forEachIndexed { index, related ->
@@ -99,11 +111,8 @@ fun NewsDetailsScreen(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Dugme za zatvaranje detalja vijesti
         Button(
-            onClick = {
-                navController.navigate("news_feed") // Povratak na ekran sa svim vijestima
-            },
+            onClick = { navController.navigate("news_feed") },
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .testTag("details_close_button")

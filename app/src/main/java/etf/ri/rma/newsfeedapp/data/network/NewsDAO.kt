@@ -4,6 +4,7 @@ import etf.ri.rma.newsfeedapp.model.NewsItem
 import java.util.Collections
 import etf.ri.rma.newsfeedapp.data.NewsData
 import etf.ri.rma.newsfeedapp.data.network.api.NewsApiService
+import etf.ri.rma.newsfeedapp.data.network.exception.InvalidImageURLException
 import etf.ri.rma.newsfeedapp.data.toNewsItem
 
 import java.util.UUID
@@ -30,6 +31,7 @@ class NewsDAO {
     private val allStoriess: ConcurrentHashMap<String, NewsItem> = ConcurrentHashMap()
     private val _allStoriesList: MutableList<NewsItem> = Collections.synchronizedList(mutableListOf())
     private val allStoriesList: List<NewsItem> get() = _allStoriesList.toList()
+
 
     private  val API_TOKEN = "9qfGW6bjGV8oAl5Dkvel4H1LqF3ofl7UyJoxdtyh"
     private val lastFetch: ConcurrentHashMap<String, Long> = ConcurrentHashMap()
@@ -107,22 +109,51 @@ class NewsDAO {
             cachedNewsForCategory.map { it.copy(isFeatured = false) }
         }
     }
+    private fun getSimilarStoriesFallback(uuid: String): List<NewsItem> {
+        val allNews = NewsData.getAllNews()
+        val original = allNews.find { it.uuid == uuid } ?: return emptyList()
+
+        // Filtriramo sve vijesti iz iste kategorije osim originalne
+        val similar = allNews.filter { it.category == original.category && it.uuid != uuid }
+
+        println("Fallback: Pronađeno ${similar.size} sličnih vijesti iz kategorije '${original.category}'")
+
+        return similar
+    }
 
     suspend fun getSimilarStories(uuid: String): List<NewsItem> {
         try {
             UUID.fromString(uuid)
         } catch (e: IllegalArgumentException) {
-            throw InvalidUUIDException("Nevalidan UUID: $uuid")
+            throw InvalidUUIDException("UUID nije validan")
         }
 
-        try {
-            // Make API call to fetch similar stories
+        return try {
             val response = apiService.getSimilarStories(uuid, API_TOKEN)
             val similarStoriesDTO = response.data
-            return similarStoriesDTO.map { it.toNewsItem() }
+
+            println("API: Pronađeno ${similarStoriesDTO.size} sličnih vijesti za UUID: $uuid")
+
+            // Mapiramo DTO u NewsItem
+            val mapped = similarStoriesDTO.map { dto ->
+                try {
+                    dto.toNewsItem()
+                } catch (e: InvalidImageURLException) {
+                    println("Upozorenje: Neispravna slika za vijest ${dto.title}")
+                    dto.copy(imageUrl = null).toNewsItem()
+                }
+            }
+
+            // Ako je API vratio praznu listu, pokušavamo fallback
+            if (mapped.isEmpty()) {
+                println("API nije vratio slične vijesti. Koristimo lokalni fallback.")
+                getSimilarStoriesFallback(uuid)
+            } else {
+                mapped
+            }
         } catch (e: Exception) {
-            println("Error: ${e.message}")
-            return emptyList() // Return an empty list if the API call fails
+            println("Greška pri dohvatu sličnih vijesti: ${e.message}")
+            getSimilarStoriesFallback(uuid)
         }
-    }
-}
+
+}}
