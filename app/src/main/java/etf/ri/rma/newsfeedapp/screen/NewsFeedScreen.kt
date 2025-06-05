@@ -1,174 +1,156 @@
 package etf.ri.rma.newsfeedapp.screen
 
-import android.util.Log
+import android.annotation.SuppressLint
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import etf.ri.rma.newsfeedapp.data.network.NewsDAO
+
 import etf.ri.rma.newsfeedapp.model.NewsItem
+import etf.ri.rma.newsfeedapp.data.network.NewsDAO
+import etf.ri.rma.newsfeedapp.screen.Filter.ParametriF
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
-import java.text.SimpleDateFormat
-import java.util.*
-
-@Composable
-fun NewsFeedScreen(navController: NavController? = null) {
-    val filters = navController?.currentBackStackEntry?.savedStateHandle
-    var savedCategory by remember { mutableStateOf(filters?.get<String>("filters_category") ?: "Sve") }
-    var savedDateFrom by remember { mutableStateOf(filters?.get<String>("filters_dateFrom")) }
-    var savedDateTo by remember { mutableStateOf(filters?.get<String>("filters_dateTo")) }
-    var savedUnwantedWords by remember { mutableStateOf(filters?.get<List<String>>("filters_unwantedWords") ?: emptyList()) }
-
-    var showFilterScreen by rememberSaveable { mutableStateOf(false) }
-
-    // Čuva sve vijesti po kategorijama
-    val allFetchedNews = remember { mutableStateMapOf<String, MutableList<NewsItem>>() }
-
-    // Prikazane vijesti
-    val featuredNews = remember { mutableStateListOf<NewsItem>() }
-    val standardNews = remember { mutableStateListOf<NewsItem>() }
-
-    // Stanje za učitavanje i greške
-    var isLoading by remember { mutableStateOf(false) }
-    var loadingError by remember { mutableStateOf<String?>(null) }
-
-    val coroutineScope = rememberCoroutineScope()
-    val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
-
-    fun refreshDisplayedNews() {
-        //radi testiranja
-        Log.d("NewsFeedScreen", "Refreshing displayed news for category: $savedCategory")
-
-        val allNews = allFetchedNews[savedCategory] ?: emptyList()
-
-        // Filtriranje po nepoželjnim riječima
-        var filtered = allNews.filter { item ->
-            savedUnwantedWords.none { word ->
-                item.title.contains(word, ignoreCase = true) ||
-                        item.snippet.contains(word, ignoreCase = true)
-            }
-        }
-
-        // Filtriranje po datumu
-        if (!savedDateFrom.isNullOrEmpty() && !savedDateTo.isNullOrEmpty()) {
-            val from = runCatching { dateFormat.parse(savedDateFrom!!) }.getOrNull()
-            val to = runCatching { dateFormat.parse(savedDateTo!!) }.getOrNull()
-            if (from != null && to != null) {
-                filtered = filtered.filter {
-                    runCatching { dateFormat.parse(it.publishedDate) }.getOrNull()
-                        ?.let { d -> d in from..to } ?: false
-                }
-            }
-        }
-
-        // Reset prikaza
-        featuredNews.clear()
-        standardNews.clear()
-
-
-        if (savedCategory == "Sve") {
-            // Sve vijesti kao standardne
-            standardNews.addAll(filtered.map { it.copy(isFeatured = false) })
-        } else {
-            // Prve 3 kao featured, ostale kao standard
-            val featured = filtered.take(3).map { it.copy(isFeatured = true) }
-            val standard = filtered.drop(3).map { it.copy(isFeatured = false) }
-
-            featuredNews.addAll(featured)
-            standardNews.addAll(standard)
-        }
+/*fun mapiranjeZaNewsfeeds(mijenjamo: String): String {
+    return when (mijenjamo.lowercase(Locale.ROOT)) {
+        "sports" -> "Sport"
+        "politics" -> "Politika"
+        "science" -> "Nauka"
+        "health" -> "Zdravlje"
+        "tech" -> "Tehnologija"
+        "general" -> "Ostalo"
+        else -> mijenjamo
     }
+}*/
 
-    LaunchedEffect(savedCategory) {
+@SuppressLint("ContextCastToActivity")
+@Composable
+fun NewsFeedScreen(
+    navController: NavController,
+    modifier: Modifier = Modifier
+) {
+    val newsDAO = NewsDAO()
+    var isLoading by remember { mutableStateOf(false) }
+    var newsWithTags by remember { mutableStateOf<List<NewsItem>>(emptyList()) }
+
+    val viewModel: Filter = viewModel(LocalContext.current as ComponentActivity)
+    val filters by viewModel.filters
+
+    suspend fun fetchNewsForSelectedCategory(selectedFilterCategory: String) {
         isLoading = true
-        loadingError = null
         try {
-            // Kreiramo instancu NewsDAO
-            val newsDAO = NewsDAO()
-
-            // Učitavanje vijesti
-            val news = if (savedCategory == "Sve") {
-                newsDAO.getAllStories() // Pozivanje metode za sve vijesti
-            } else {
-                newsDAO.getTopStoriesByCategory(savedCategory) // Pozivanje metode za vijesti po kategoriji
-            }
-
-            allFetchedNews[savedCategory] = news.toMutableList()
-            refreshDisplayedNews()
+            newsWithTags = newsDAO.getNewsWithTags(selectedFilterCategory)
         } catch (e: Exception) {
-            loadingError = "Greška prilikom učitavanja vijesti: ${e.message}"
+            newsWithTags = emptyList() //isprazni listu u slucaju greske skroz?
         } finally {
             isLoading = false
         }
     }
 
-    // Ponovno filtriranje ako se promijene filteri (datum ili nepoželjne riječi)
-    LaunchedEffect(savedDateFrom, savedDateTo, savedUnwantedWords) {
-        refreshDisplayedNews()
+    LaunchedEffect(Unit) {
+        fetchNewsForSelectedCategory(filters.category ?: "Sve")
     }
 
-    if (showFilterScreen) {
-        FilterScreen(
-            selectedCategory = savedCategory,
-            dateRange = Pair(savedDateFrom, savedDateTo),
-            dateRangesByCategory = mapOf(), // Dopuniti ako je potrebno
-            unwantedWordsByCategory = mapOf(), // Dopuniti ako je potrebno
-            onApplyFilters = { category, dateRanges, unwantedWords ->
-                savedCategory = category
-                savedDateFrom = dateRanges[category]?.first
-                savedDateTo = dateRanges[category]?.second
-                savedUnwantedWords = unwantedWords[category] ?: emptyList()
+    LaunchedEffect(filters.category) {
+        if (filters.category != null) {
+            fetchNewsForSelectedCategory(filters.category!!)
+        }
+    }
 
-                filters?.set("filters_category", savedCategory)
-                filters?.set("filters_dateFrom", savedDateFrom)
-                filters?.set("filters_dateTo", savedDateTo)
-                filters?.set("filters_unwantedWords", savedUnwantedWords)
-
-                showFilterScreen = false
-            },
-            onBackPressed = { showFilterScreen = false }
-        )
-    } else {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            Text("NewsFeedApp", modifier = Modifier.testTag("news_header"))
-
-            FilterSection(
-                selectedCategory = savedCategory,
-                onCategorySelected = { cat ->
-                    savedCategory = cat
-                    filters?.set("filters_category", cat)
-                },
-                onMoreFiltersClicked = { showFilterScreen = true }
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            // Prikazujemo grešku ako je učitavanje vijesti neuspešno
-            if (loadingError != null) {
-                MessageCard(loadingError!!)
-            } else if (isLoading) {
-                // Prikazujemo indikator učitavanja
-                MessageCard("Učitavanje vijesti...")
-            } else if (featuredNews.isEmpty() && standardNews.isEmpty()) {
-                MessageCard("Nema pronađenih vijesti u kategoriji \"$savedCategory\"")
-            } else {
-                NewsList(
-                    newsItems = featuredNews + standardNews,
-                    listState = rememberLazyListState(),
-                    selectedCategory = savedCategory,
-                    onNewsClick = { id: String -> navController?.navigate("details/$id") }
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .semantics { testTag = "news_feed_screen" }
+    ) {
+        FilterSection(
+            selectedCategory = filters.category ?: "Sve",
+            onCategorySelected = { selectedCategory ->
+                viewModel.update(
+                    ParametriF(
+                        category = selectedCategory,
+                        dateRange = filters.dateRange,
+                        nezeljeneRijeci = filters.nezeljeneRijeci
+                    )
                 )
+            },
+            onMoreFiltersClicked = {
+                navController.navigate("filters")
             }
+        )
+
+        val filteredNewsList = newsWithTags.filter { newsItem ->
+            val categoryMatches = if (filters.category == null || filters.category == "Sve") {
+                true
+            } else {
+                val filterCategory = filters.category!!.lowercase(Locale.ROOT)
+                val newsItemCategory = newsItem.category.lowercase(Locale.ROOT)
+
+                when (filterCategory) {
+                    "nauka/tehnologija" -> {
+                        NewsDAO.mapiranjeKat(newsItemCategory) == NewsDAO.mapiranjeKat("science") ||
+                                NewsDAO.mapiranjeKat(newsItemCategory) == NewsDAO.mapiranjeKat("tech")
+                    }
+                    else -> NewsDAO.mapiranjeKat(newsItemCategory) == NewsDAO.mapiranjeKat(filterCategory)
+                }
+            }
+
+            val dateMatches = filters.dateRange?.let { (startStr, endStr) ->
+                try {
+                    val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+                    val start = LocalDate.parse(startStr, formatter)
+                    val end = LocalDate.parse(endStr, formatter)
+                    val newsDate = LocalDate.parse(newsItem.publishedDate, formatter)
+                    !newsDate.isBefore(start) && !newsDate.isAfter(end)
+                } catch (e: Exception) {
+                    false
+                }
+            } != false
+
+            val unwantedWordsMatch = filters.nezeljeneRijeci.none { unwantedWord ->
+                newsItem.snippet.contains(unwantedWord, ignoreCase = true) ||
+                        newsItem.title.contains(unwantedWord, ignoreCase = true)
+            }
+
+            categoryMatches && dateMatches && unwantedWordsMatch
+        }
+
+        val sortedAndFilteredNewsList = if (filters.category == "Sve") {
+            filteredNewsList.asReversed() // mejntejn originalnu "Sve" logiku (most recent prve)
+        } else {
+            // Sort by isFeatured (true first), onda by publishedDate (most recent first)
+            filteredNewsList
+                .sortedWith(compareByDescending<NewsItem> { it.isFeatured }
+                    .thenByDescending {
+                        try {
+                            LocalDate.parse(it.publishedDate, DateTimeFormatter.ofPattern("dd-MM-yyyy"))
+                        } catch (e: Exception) {
+                            LocalDate.MIN
+                        }
+                    })
+        }
+
+        if (isLoading) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        } else {
+            NewsList(
+                newsList = sortedAndFilteredNewsList,
+                category = filters.category ?: "Sve",
+                navController = navController
+            )
         }
     }
 }
-

@@ -48,7 +48,7 @@ fun StandardNewsCard(item: NewsItem, onClick: () -> Unit) {
                     .fillMaxWidth()
                     .padding(8.dp)
             ) {
-                // Load image dynamically using Coil
+
                 Image(
                     painter = rememberAsyncImagePainter(item.imageUrl),
                     contentDescription = "News Image",

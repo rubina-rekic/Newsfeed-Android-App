@@ -1,9 +1,13 @@
 package etf.ri.rma.newsfeedapp.data
 
 import com.google.gson.annotations.SerializedName
+import etf.ri.rma.newsfeedapp.model.NewsItemDTO
 import etf.ri.rma.newsfeedapp.model.NewsItem
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
 
-data class NewsItemDTO(
+//treba li ovo uopste ili ce trebti?
+/*data class NewsItemDTO(
     @SerializedName("uuid")
     val uuid: String,
     @SerializedName("title")
@@ -18,28 +22,40 @@ data class NewsItemDTO(
     val source: String,
     @SerializedName("published_at")
     val publishedDate: String
-)
+)*/
 
 fun NewsItemDTO.toNewsItem(): NewsItem {
     return NewsItem(
-        uuid = this.uuid,
-        title = this.title,
-        snippet = this.snippet,
-        imageUrl = this.imageUrl,
-        category = this.categories?.firstOrNull() ?: "Uncategorized",
+        uuid = uuid,
+        title = title,
+        snippet = snippet,
+        imageUrl = image_url,
+        category = categories.firstOrNull()?.lowercase().toString(),
         isFeatured = false,
-        source = this.source,
-        publishedDate = formatPublishedDate(this.publishedDate),
+        source = source,
+        publishedDate = convertDateFormat(published_at),
+        imageTags = arrayListOf()
+    )
+}
+fun NewsItemDTO.toNewsItem(kategorija:String): NewsItem {
+    return NewsItem(
+        uuid = uuid,
+        title = title,
+        snippet = snippet,
+        imageUrl = image_url,
+        category = kategorija,
+        isFeatured = false,
+        source = source,
+        publishedDate = convertDateFormat(published_at),
         imageTags = arrayListOf()
     )
 }
 
-fun formatPublishedDate(publishedAt:String?): String{
-    return publishedAt?.let{
-        val parts=it.split("T")[0].split("-")
-        if(parts.size==3){
-            "${parts[2]}-${parts[1]}-${parts[0]}"
-        } else { "Unknown date"
-        }
-    }?: "Unknown date"
+private fun convertDateFormat(isoDateString: String): String {
+    return try {
+        val parsedDateTime = OffsetDateTime.parse(isoDateString)
+        parsedDateTime.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))
+    } catch (e: Exception) {
+        isoDateString
+    }
 }

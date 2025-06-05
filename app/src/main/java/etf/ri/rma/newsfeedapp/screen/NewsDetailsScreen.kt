@@ -1,123 +1,288 @@
 package etf.ri.rma.newsfeedapp.screen
 
-import androidx.compose.foundation.Image
+import androidx.activity.compose.BackHandler
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import coil.compose.rememberAsyncImagePainter
-import etf.ri.rma.newsfeedapp.data.NewsData
-import etf.ri.rma.newsfeedapp.data.network.ImagaDAO
-import etf.ri.rma.newsfeedapp.data.network.NewsDAO
-import etf.ri.rma.newsfeedapp.data.network.ImageRetrofitInstance
-import etf.ri.rma.newsfeedapp.data.network.exception.InvalidImageURLException
-import etf.ri.rma.newsfeedapp.data.network.exception.InvalidUUIDException
+import coil.compose.AsyncImage
 import etf.ri.rma.newsfeedapp.model.NewsItem
+import etf.ri.rma.newsfeedapp.data.network.NewsDAO
+import etf.ri.rma.newsfeedapp.data.network.ImagaDAO
+import etf.ri.rma.newsfeedapp.data.network.TaggingResult
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
+
+fun String.convertDateFormat(): String {
+    return try {
+        val parsedDateTime = OffsetDateTime.parse(this)
+        parsedDateTime.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))
+    } catch (e: DateTimeParseException) {
+        println("${e.message}")
+        this
+    } catch (e: Exception) {
+
+        println("${e.message}")
+        this
+    }
+}
+
 
 @Composable
 fun NewsDetailsScreen(
+    newsId: String,
     navController: NavController,
-    newsId: String
+    modifier: Modifier = Modifier
 ) {
-    val news = remember { NewsData.getAllNews().find { it.uuid == newsId } }
+    val newsDAO = remember { NewsDAO() }
+    val imagaDAO = remember { ImagaDAO() }
 
-    if (news == null) {
-        Text("Vijest nije pronađena", modifier = Modifier.padding(16.dp))
+    val newsList = remember { mutableStateListOf<NewsItem>().apply { addAll(newsDAO.getAllStories()) } }
+    val newsItem = newsList.find { it.uuid == newsId }
+
+
+    var isLoadingTags by remember { mutableStateOf(false) }
+    var tagovikojeKESIRAM by remember { mutableStateOf<List<String>>(emptyList()) }
+    var porukaGreske by remember { mutableStateOf<String?>(null) }
+
+    val scope = rememberCoroutineScope()
+
+    //ovdje pocetak
+    var similarStories by remember { mutableStateOf<List<NewsItem>>(emptyList()) }
+    var slicneVijesti by remember { mutableStateOf(false) }
+    LaunchedEffect(newsId) {
+        if (newsItem != null) {
+            scope.launch {
+                slicneVijesti = true
+                porukaGreske = null
+                try {
+                    val similar = newsDAO.getSimilarStories(newsId)
+                    similarStories = similar
+                    similar.forEach { newsDAO.addNewsItem(it) }
+                } catch (e: Exception) {
+                    println("Error loading similar stories: ${e.message}")
+                    porukaGreske = "Greska pri trazenju similar news"
+                } finally {
+                    slicneVijesti = false
+                }
+            }
+
+            // za ucitavanje tagova --->vidjet jos jednom radi li
+            if (!newsItem.imageUrl.isNullOrEmpty()) {
+                scope.launch {
+                    isLoadingTags = true
+                    try {
+                        when (val result = imagaDAO.getTags(newsItem.imageUrl)) {
+                            is TaggingResult.Success -> {
+                                tagovikojeKESIRAM = result.tags
+                            }
+                            is TaggingResult.Error -> {
+                                porukaGreske = (porukaGreske ?: "") + "\nGreška pri učitavanju tagova: ${result.exception.message}"
+                            }
+                        }
+                    } catch (e: Exception) {
+                        porukaGreske =  "Nepoznata greska pri ucitavanju tagova!"
+                    } finally {
+                        isLoadingTags = false
+                    }
+                }
+            }
+        }
+    }
+
+    if (newsItem == null) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text("Vijest nije pronađena", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.error)
+            Spacer(modifier = Modifier.height(16.dp))
+        }
         return
     }
 
-    val newsDAO = remember { NewsDAO() }
-    val imagaDAO = remember {
-        ImagaDAO().apply {
-            setApiService(ImageRetrofitInstance.api)
+    val onBack = {
+        navController.navigate("home") {
+            popUpTo("home") { inclusive = false }
+            launchSingleTop = true
         }
     }
 
-    val similarNews = remember { mutableStateOf<List<NewsItem>>(emptyList()) }
-    val imageTags = remember { mutableStateOf<List<String>>(emptyList()) }
+    BackHandler(onBack = onBack)
 
-    LaunchedEffect(newsId) {
-        try {
-            similarNews.value = newsDAO.getSimilarStories(news.uuid)
-        } catch (e: InvalidUUIDException) {
-            similarNews.value = emptyList()
-        }
-    }
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        item {
+            if (newsItem.imageUrl != null) {
+                AsyncImage(
+                    model = newsItem.imageUrl,
+                    contentDescription = "News image",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        .clip(RoundedCornerShape(8.dp)),
+                    contentScale = ContentScale.Crop
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
 
-    LaunchedEffect(news.imageUrl) {
-        news.imageUrl?.let { url ->
-            try {
-                imageTags.value = imagaDAO.getTags(url)
-            } catch (_: InvalidImageURLException) {
-                imageTags.value = listOf("Nepoznato")
+            Text(
+                text = newsItem.title,
+                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                modifier = Modifier.testTag("details_title")
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = newsItem.snippet,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.testTag("details_snippet")
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Kategorija: ${newsItem.category}", // Assuming mapiranjeZaNewsfeeds is no longer needed here
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.testTag("details_category")
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = "Izvor: ${newsItem.source}",
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.testTag("details_source")
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = "Datum objave: ${newsItem.publishedDate.convertDateFormat()}",
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.testTag("details_date")
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // prikaz tagova
+            if (isLoadingTags) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = "ucitavanje tagova...", style = MaterialTheme.typography.bodySmall)
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            } else if (tagovikojeKESIRAM.isNotEmpty()) {
+                Text(
+                    text = "Tagovi slike:",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.testTag("image_tags_label")
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = tagovikojeKESIRAM.joinToString(", "),
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.testTag("image_tags")
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            } else if (!newsItem.imageUrl.isNullOrEmpty()) { // Only show "No tags found" if there was an image URL
+                Text(
+                    text = "Tagovi slike nisu pronađeni.",
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.testTag("no_image_tags")
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "Povezane vijesti iz iste kategorije",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            if (slicneVijesti) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = "Učitavanje sličnih vijesti...", style = MaterialTheme.typography.bodySmall)
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            } else if (similarStories.isEmpty()) {
+                Text(
+                    text = "Nema sličnih vijesti.",
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.testTag("no_similar_news")
+                )
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
-    }
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text(news.title, style = MaterialTheme.typography.titleLarge, modifier = Modifier.testTag("details_title"))
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(news.snippet, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.testTag("details_snippet"))
-        Spacer(modifier = Modifier.height(8.dp))
-        Text("Kategorija: ${news.category}", modifier = Modifier.testTag("details_category"))
-        Spacer(modifier = Modifier.height(8.dp))
-        Text("Izvor: ${news.source}", modifier = Modifier.testTag("details_source"))
-        Spacer(modifier = Modifier.height(8.dp))
-        Text("Datum: ${news.publishedDate}", modifier = Modifier.testTag("details_date"))
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        news.imageUrl?.let { imageUrl ->
-            Image(
-                painter = rememberAsyncImagePainter(imageUrl),
-                contentDescription = news.title,
-                modifier = Modifier.fillMaxWidth().height(200.dp)
+        // prikazz slicnih vijestiii
+        items(similarStories.size) { index ->
+            val relatedItem = similarStories[index]
+            Text(
+                text = relatedItem.title,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        navController.navigate("details/${relatedItem.uuid}") {
+                            popUpTo("news_feed") { inclusive = false }
+                        }
+                    }
+                    .testTag("related_news_title_${index + 1}")
+                    .padding(vertical = 8.dp)
             )
 
-            if (imageTags.value.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("Tagovi slike:", style = MaterialTheme.typography.titleSmall)
-                Text(
-                    imageTags.value.joinToString(", "),
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.testTag("details_image_tags")
-                )
+            if (index < similarStories.size - 1) {
+                HorizontalDivider()
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        item {
+            Spacer(modifier = Modifier.height(24.dp))
+            Button(
+                onClick = {
+                    navController.navigate("home") {
+                        popUpTo("home") { inclusive = false }
+                        launchSingleTop = true
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("details_close_button")
+            ) {
+                Text("Zatvori detalje")
+            }
 
-        Text("Povezane vijesti iz iste kategorije", style = MaterialTheme.typography.titleMedium)
-        Column(modifier = Modifier.testTag("news_list")) {
-            similarNews.value.forEachIndexed { index, related ->
+            porukaGreske?.let { msg ->
+                Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = related.title,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier
-                        .clickable { navController.navigate("details/${related.uuid}") }
-                        .testTag("related_news_title_${index + 1}")
-                        .padding(vertical = 4.dp),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    text = "Izuzetak/greska: $msg",
+                    style = MaterialTheme.typography.bodySmall
                 )
             }
-        }
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        Button(
-            onClick = { navController.navigate("news_feed") },
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .testTag("details_close_button")
-        ) {
-            Text("Zatvori detalje")
         }
     }
+
+
 }

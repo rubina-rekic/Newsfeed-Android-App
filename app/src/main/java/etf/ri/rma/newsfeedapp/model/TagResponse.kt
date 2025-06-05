@@ -1,17 +1,16 @@
 package etf.ri.rma.newsfeedapp.model
 
-data class ImaggaTagResponse(
-    val result: Result
-)
-
-data class Result(
-    val tags: List<Tag>
-)
-
-data class Tag(
-    val tag: TagDetails
-)
-
-data class TagDetails(
+data class ImagaTagInfo(
     val en: String
+)
+data class ImaggaTag(
+    val tag: ImagaTagInfo
+)
+
+data class ImaggaTagResult(
+    val result: ImaggaResult
+)
+
+data class ImaggaResult(
+    val tags: List<ImaggaTag>
 )

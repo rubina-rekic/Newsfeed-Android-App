@@ -1,159 +1,174 @@
 package etf.ri.rma.newsfeedapp.data.network
-import etf.ri.rma.newsfeedapp.data.network.exception.InvalidUUIDException
-import etf.ri.rma.newsfeedapp.model.NewsItem
-import java.util.Collections
-import etf.ri.rma.newsfeedapp.data.NewsData
-import etf.ri.rma.newsfeedapp.data.network.api.NewsApiService
-import etf.ri.rma.newsfeedapp.data.network.exception.InvalidImageURLException
-import etf.ri.rma.newsfeedapp.data.toNewsItem
 
-import java.util.UUID
+import etf.ri.rma.newsfeedapp.data.NewsData
+import etf.ri.rma.newsfeedapp.data.RetrofitInstance
+import etf.ri.rma.newsfeedapp.data.network.api.NewsApiService
+import etf.ri.rma.newsfeedapp.data.network.exception.InvalidUUIDException
+import etf.ri.rma.newsfeedapp.data.toNewsItem
+import etf.ri.rma.newsfeedapp.model.NewsItem
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeUnit
+
 
 class NewsDAO {
-    private var apiService: NewsApiService = RetrofitInstance.api
+    companion object {
+        private var api: NewsApiService = RetrofitInstance.api
+        private val cachedNews = Collections.synchronizedList(mutableListOf<NewsItem>())
+        private val lastFetchTimes = ConcurrentHashMap<String, Long>()
 
-    fun setApiService(service: NewsApiService) {
-        apiService = service
-    }
+        private val similarStoriesCache = ConcurrentHashMap<String, List<NewsItem>>()
+        private const val API_KEY = "WxNJrNPNyhwF0FsYCs56qGpUPFcGX8whmVjkQpVz"
+        private const val CACHE_DURATION_SECONDS = 30L
 
-    // za mapiranje kategorija
-    private fun mapiranjeKat(category: String): String {
-        return when (category) {
-            "Politika", "politics" -> "politics"
-            "Sport", "sports" -> "sports"
-            "Nauka/tehnologija", "science", "technology" -> "science"
-            "Zdravlje", "health" -> "health"
-            else -> "general"
-        }
-    }
-
-    private val allStoriess: ConcurrentHashMap<String, NewsItem> = ConcurrentHashMap()
-    private val _allStoriesList: MutableList<NewsItem> = Collections.synchronizedList(mutableListOf())
-    private val allStoriesList: List<NewsItem> get() = _allStoriesList.toList()
-
-
-    private  val API_TOKEN = "9qfGW6bjGV8oAl5Dkvel4H1LqF3ofl7UyJoxdtyh"
-    private val lastFetch: ConcurrentHashMap<String, Long> = ConcurrentHashMap()
-
-    init {
-        if (_allStoriesList.isEmpty()) {
-            val initial = NewsData.getAllNews()
-            initial.forEach {
-                allStoriess[it.uuid] = it
-                _allStoriesList.add(it.copy(isFeatured = false))
-            }
-        }
-    }
-
-    fun getAllStories(): List<NewsItem> {
-
-        return allStoriesList.map { it.copy(isFeatured = false) }.toList()
-    }
-
-
-    suspend fun getTopStoriesByCategory(category: String): List<NewsItem> {
-        val currentTime = System.currentTimeMillis()
-        val apiCategory = mapiranjeKat(category)
-        val lastFetchTime = lastFetch[apiCategory] ?: 0L
-
-        val cachedNewsForCategory = _allStoriesList
-            .filter { mapiranjeKat(it.category) == apiCategory }
-            .distinctBy { it.uuid }
-
-       //manje od 30- vrati kesirane
-        if (currentTime - lastFetchTime < 30 * 1000L) {
-            return cachedNewsForCategory.map { it.copy(isFeatured = false) }
-        }
-
-        return try {
-            val newsResponse = apiService.searchNews(apiCategory, API_TOKEN)
-            val newStoriesDTO = newsResponse.data
-            val newFetched = newStoriesDTO.map { it.toNewsItem() }.take(3)
-
-            // Add new stories to the "Sve" category and mark them as featured
-            val newFeatured = newFetched.map { new ->
-                val existing = allStoriess[new.uuid]
-                if (existing != null) {
-                    existing.copy(isFeatured = true)
-                } else {
-                    val fresh = new.copy(isFeatured = true)
-                    allStoriess[fresh.uuid] = fresh
-                    _allStoriesList.add(0, fresh)
-                    fresh
-                }
-            }
-
-            // Add new stories to the "Sve" category
-            newFeatured.forEach { fresh ->
-                if (mapiranjeKat(fresh.category) != "general") {
-                    val generalCategoryNews = allStoriess[fresh.uuid]
-                    if (generalCategoryNews == null) {
-                        _allStoriesList.add(fresh.copy(category = "general"))
+        init {
+            // Učitavanje inicijalnih vijesti, nisu označene kao "featured"
+            if (NewsData.getAllNews().isNotEmpty()) {
+                NewsData.getAllNews().forEach { newsItem ->
+                    // Dodajemo vijest samo ako već ne postoji u kešu, da izbjegnemo duplikate
+                    if (cachedNews.none { it.uuid == newsItem.uuid }) {
+                        cachedNews.add(newsItem.copy(isFeatured = false))
                     }
                 }
             }
+        }
 
-            // All previously fetched news for the category as standard
-            val previousStandard = cachedNewsForCategory
-                .filter { it.uuid !in newFeatured.map { nf -> nf.uuid } }
-                .map { it.copy(isFeatured = false) }
-
-            // Update the last fetch time
-            lastFetch[apiCategory] = currentTime
-
-            return newFeatured + previousStandard
-        } catch (e: Exception) {
-            println("Error fetching news: ${e.message}")
-            // If the API call fails, return cached news
-            cachedNewsForCategory.map { it.copy(isFeatured = false) }
+        //funkc za mapiranje postojecih kategorija, ispravka, testovi
+        fun mapiranjeKat(category: String): String {
+            return when (category.lowercase(Locale.ROOT)) {
+                "sport", "sports" -> "sports"
+                "politika", "politics" -> "politics"
+                "nauka", "science", "tehnologija", "tech", "nauka/tehnologija" -> "science" // Map both to "science" for API
+                "zdravlje", "health" -> "health"
+                else -> "general" // sve ostalo
+            }
         }
     }
-    private fun getSimilarStoriesFallback(uuid: String): List<NewsItem> {
-        val allNews = NewsData.getAllNews()
-        val original = allNews.find { it.uuid == uuid } ?: return emptyList()
 
-        // Filtriramo sve vijesti iz iste kategorije osim originalne
-        val similar = allNews.filter { it.category == original.category && it.uuid != uuid }
-
-        println("Fallback: Pronađeno ${similar.size} sličnih vijesti iz kategorije '${original.category}'")
-
-        return similar
+    fun setApiService(apiService: Any) {
+        api = apiService as NewsApiService
     }
 
-    suspend fun getSimilarStories(uuid: String): List<NewsItem> {
+    suspend fun getNewsWithTags(category: String): List<NewsItem> = withContext(Dispatchers.IO) {
+        val fetchedNews = when (category) {
+            "Sve" -> getAllStories() //  vraća  sve st je u cachedNews
+            "Nauka/tehnologija" -> {
+                val scienceNews = getTopStoriesByCategory(mapiranjeKat("Nauka"))
+                val techNews = getTopStoriesByCategory(mapiranjeKat("Tehnologija"))
+                (scienceNews + techNews).distinctBy { it.uuid }
+            }
+            else -> {
+                val apiCategory = mapiranjeKat(category)
+                getTopStoriesByCategory(apiCategory)
+            }
+        }
+        return@withContext fetchedNews
+    }
+
+    suspend fun getTopStoriesByCategory(category: String): List<NewsItem> = withContext(Dispatchers.IO) {
+        val apiCategory = mapiranjeKat(category)
+
+        val now = System.currentTimeMillis()
+        val lastFetchTime = lastFetchTimes[apiCategory] ?: 0
+        val timeSinceLastFetch = now - lastFetchTime
+
+        // Return cached if within the cache duration
+        if (timeSinceLastFetch < TimeUnit.SECONDS.toMillis(CACHE_DURATION_SECONDS)) {
+            // Vraćamo i featured i ne vijesti za ovu kat iz kesa
+            // Redoslijed će se sortirati u NewsFeedScreen
+            return@withContext cachedNews.filter {
+                mapiranjeKat(it.category) == apiCategory
+            }
+        }
+
+        val response = api.getTopStoriesByCategory(
+            apiToken = API_KEY,
+            categories = apiCategory
+        )
+
+        if (!response.isSuccessful || response.body() == null) {
+            return@withContext cachedNews.filter {
+                mapiranjeKat(it.category) == apiCategory
+            }
+        }
+
+        val newStories = response.body()!!.data.map { it.toNewsItem(category) }
+            .filter { mapiranjeKat(it.category) == apiCategory } // Ensure category matches after mapping
+            .take(3)
+
+        updateCacheWithNewStories(apiCategory, newStories)
+        //ubaci nove featured u kes
+        lastFetchTimes[apiCategory] = now
+
+        // vratisve vijesti za odgg kategorijyx
+        return@withContext cachedNews.filter {
+            mapiranjeKat(it.category) == apiCategory
+        }
+    }
+
+    private fun updateCacheWithNewStories(category: String, newStories: List<NewsItem>) {
+        // un-feature postojece news za given category
+        val newsToUpdate = cachedNews.filter { mapiranjeKat(it.category) == category }.toMutableList()
+
+        newsToUpdate.forEachIndexed { index, newsItem ->
+            newsToUpdate[index] = newsItem.copy(isFeatured = false)
+        }
+
+        // dodaj new stories kao featured  u listu
+        newStories.forEach { newStory ->
+            val existingIndex = newsToUpdate.indexOfFirst { it.uuid == newStory.uuid }
+            if (existingIndex != -1) {
+                newsToUpdate[existingIndex] = newsToUpdate[existingIndex].copy(isFeatured = true)
+            } else {
+                newsToUpdate.add(0, newStory.copy(isFeatured = true))
+            }
+        }
+
+        cachedNews.removeAll { mapiranjeKat(it.category) == category }
+        cachedNews.addAll(newsToUpdate)
+    }
+
+    fun getAllStories(): List<NewsItem> {
+        return cachedNews.toList() //ne znam eto
+    }
+    fun addNewsItem(newsItem: NewsItem) {
+        if (cachedNews.none { it.uuid == newsItem.uuid }) {
+            cachedNews.add(newsItem)
+        }
+    }
+
+    suspend fun getSimilarStories(uuid: String): List<NewsItem> = withContext(Dispatchers.IO) {
         try {
             UUID.fromString(uuid)
         } catch (e: IllegalArgumentException) {
-            throw InvalidUUIDException("UUID nije validan")
+            throw InvalidUUIDException("Nevalidan uuid: $uuid")
         }
 
-        return try {
-            val response = apiService.getSimilarStories(uuid, API_TOKEN)
-            val similarStoriesDTO = response.data
+        similarStoriesCache[uuid]?.let { return@withContext it }
 
-            println("API: Pronađeno ${similarStoriesDTO.size} sličnih vijesti za UUID: $uuid")
+        val response = api.getSimilarStories(
+            uuid = uuid,
+            apiToken = API_KEY
+        )
 
-            // Mapiramo DTO u NewsItem
-            val mapped = similarStoriesDTO.map { dto ->
-                try {
-                    dto.toNewsItem()
-                } catch (e: InvalidImageURLException) {
-                    println("Upozorenje: Neispravna slika za vijest ${dto.title}")
-                    dto.copy(imageUrl = null).toNewsItem()
-                }
-            }
-
-            // Ako je API vratio praznu listu, pokušavamo fallback
-            if (mapped.isEmpty()) {
-                println("API nije vratio slične vijesti. Koristimo lokalni fallback.")
-                getSimilarStoriesFallback(uuid)
-            } else {
-                mapped
-            }
-        } catch (e: Exception) {
-            println("Greška pri dohvatu sličnih vijesti: ${e.message}")
-            getSimilarStoriesFallback(uuid)
+        if (response.isSuccessful && response.body() != null) {
+            val similar = response.body()!!.data.map { it.toNewsItem() }.take(2)
+            similarStoriesCache[uuid] = similar
+            return@withContext similar
         }
 
-}}
+        // vrati vijesti iz kesa ako ne
+        val current = cachedNews.find { it.uuid == uuid }
+            ?: throw InvalidUUIDException("Vijest s UUID $uuid nije nadjena u kesu")
+
+        val similar = cachedNews
+            .filter { it.uuid != uuid && mapiranjeKat(it.category) == mapiranjeKat(current.category) }
+            .take(2)
+
+        similarStoriesCache[uuid] = similar
+        return@withContext similar
+    }
+
+}

@@ -9,8 +9,8 @@ object NewsData {
                     title = "Slushy start: warmer winter a downer for ski slopes",
                     snippet = "The first dustings of winter snow have arrived on Australian mountaintops but long-range weather forecasts suggest it could be slow start to the ski season.\n\nSk...",
                     imageUrl = "https://michaelwest.com.au/wp-content/uploads/2025/06/2cae69ef-2833-449b-a3e7-3ee326eea1b0.jpg",
-                    category = "general", // uzimamo prvu kategoriju iz liste
-                    isFeatured = false, // podaci to ne navode, postavljamo na false
+                    category = "politics",
+                    isFeatured = false,
                     source = "michaelwest.com.au",
                     publishedDate = "05-05-2025"
                 ),

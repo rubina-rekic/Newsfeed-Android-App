@@ -38,7 +38,6 @@ fun FeaturedNewsCard(item: NewsItem, onClick: () -> Unit) {
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
-
                 Image(
                     painter = rememberAsyncImagePainter(item.imageUrl),
                     contentDescription = "Featured News Image",

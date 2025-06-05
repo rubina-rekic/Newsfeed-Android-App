@@ -3,10 +3,13 @@ package etf.ri.rma.newsfeedapp.screen
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+
 
 @Composable
 fun FilterSection(
@@ -70,5 +73,20 @@ fun FilterSection(
                 modifier = Modifier.padding(2.dp).testTag("filter_chip_more")
             )
         }
+    }
+}
+
+
+class Filter : ViewModel() {
+    data class ParametriF(
+        var category: String? = "Sve",
+        var dateRange: Pair<String, String>? = null,
+        var nezeljeneRijeci: List<String> = emptyList()
+    )
+
+    var filters = mutableStateOf(ParametriF())
+
+    fun update(newFilters: ParametriF) {
+        filters.value = newFilters
     }
 }
