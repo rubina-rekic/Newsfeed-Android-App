@@ -20,7 +20,7 @@ class NewsDAO {
         private val lastFetchTimes = ConcurrentHashMap<String, Long>()
 
         private val similarStoriesCache = ConcurrentHashMap<String, List<NewsItem>>()
-        private const val API_KEY = "WxNJrNPNyhwF0FsYCs56qGpUPFcGX8whmVjkQpVz"
+        private const val API_KEY = "V61eDUFrmQScTsKyZtAWu6rfybY5NNXljUtCCCEQ"
         private const val CACHE_DURATION_SECONDS = 30L
 
         init {
