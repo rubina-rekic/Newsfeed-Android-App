@@ -7,10 +7,8 @@ import etf.ri.rma.newsfeedapp.model.NewsItem
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-
 import androidx.compose.ui.platform.testTag
 import androidx.navigation.NavController
-
 
 @Composable
 fun NewsList(

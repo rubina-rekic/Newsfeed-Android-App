@@ -27,7 +27,7 @@ class NewsDAO {
             // Učitavanje inicijalnih vijesti, nisu označene kao "featured"
             if (NewsData.getAllNews().isNotEmpty()) {
                 NewsData.getAllNews().forEach { newsItem ->
-                    // Dodajemo vijest samo ako već ne postoji u kešu, da izbjegnemo duplikate
+                    // Dodajemo vijest samo ako već ne postoji u kesuu
                     if (cachedNews.none { it.uuid == newsItem.uuid }) {
                         cachedNews.add(newsItem.copy(isFeatured = false))
                     }
@@ -74,7 +74,6 @@ class NewsDAO {
         val lastFetchTime = lastFetchTimes[apiCategory] ?: 0
         val timeSinceLastFetch = now - lastFetchTime
 
-        // Return cached if within the cache duration
         if (timeSinceLastFetch < TimeUnit.SECONDS.toMillis(CACHE_DURATION_SECONDS)) {
             // Vraćamo i featured i ne vijesti za ovu kat iz kesa
             // Redoslijed će se sortirati u NewsFeedScreen

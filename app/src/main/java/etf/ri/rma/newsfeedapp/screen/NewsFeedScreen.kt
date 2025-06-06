@@ -126,7 +126,6 @@ fun NewsFeedScreen(
         val sortedAndFilteredNewsList = if (filters.category == "Sve") {
             filteredNewsList.asReversed() // mejntejn originalnu "Sve" logiku (most recent prve)
         } else {
-            // Sort by isFeatured (true first), onda by publishedDate (most recent first)
             filteredNewsList
                 .sortedWith(compareByDescending<NewsItem> { it.isFeatured }
                     .thenByDescending {
