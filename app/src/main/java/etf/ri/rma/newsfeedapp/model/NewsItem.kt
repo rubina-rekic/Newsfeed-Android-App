@@ -11,6 +11,6 @@ data class NewsItem(
     var isFeatured: Boolean,              // istaknutada ne mozda
     val source: String,                   // izvor vijesti
     val publishedDate: String,            // datum objavljivanja
-    val imageTags: ArrayList<String> = arrayListOf() // tagovi slike
+    val imageTags: ArrayList<String> = arrayListOf()
 )
 

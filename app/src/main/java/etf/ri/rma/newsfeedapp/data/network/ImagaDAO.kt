@@ -41,7 +41,7 @@ class ImagaDAO {
 
             if (response.isSuccessful) {
                 val tags = response.body()?.result?.tags?.map { it.tag.en } ?: emptyList()
-                imageTagsCache.put(imageURL, tags) // hahhasha kesiraj tagove
+                imageTagsCache.put(imageURL, tags) // a kesiraj tagove
                 return@withContext TaggingResult.Success(tags)
             } else {
                 val errorBody = response.errorBody()?.string()

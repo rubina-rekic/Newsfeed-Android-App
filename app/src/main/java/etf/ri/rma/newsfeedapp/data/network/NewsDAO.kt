@@ -20,6 +20,10 @@ class NewsDAO {
         private val lastFetchTimes = ConcurrentHashMap<String, Long>()
 
         private val similarStoriesCache = ConcurrentHashMap<String, List<NewsItem>>()
+        // Dodajemo cache za vijesti po izvoru
+        private val newsBySourceCache = ConcurrentHashMap<String, List<String>>() // Cache sada sprema List<String> za naslove
+        private val lastSourceFetchTimes = ConcurrentHashMap<String, Long>() // Vrijeme posljednjeg dohvaćanja po izvoru
+
         private const val API_KEY = "V61eDUFrmQScTsKyZtAWu6rfybY5NNXljUtCCCEQ"
         private const val CACHE_DURATION_SECONDS = 30L
 
@@ -35,7 +39,7 @@ class NewsDAO {
             }
         }
 
-        //funkc za mapiranje postojecih kategorija, ispravka, testovi
+        // funkcija za mapiranje postojećih kategorija
         fun mapiranjeKat(category: String): String {
             return when (category.lowercase(Locale.ROOT)) {
                 "sport", "sports" -> "sports"
@@ -53,7 +57,7 @@ class NewsDAO {
 
     suspend fun getNewsWithTags(category: String): List<NewsItem> = withContext(Dispatchers.IO) {
         val fetchedNews = when (category) {
-            "Sve" -> getAllStories() //  vraća  sve st je u cachedNews
+            "Sve" -> getAllStories() // vraća sve što je u cachedNews
             "Nauka/tehnologija" -> {
                 val scienceNews = getTopStoriesByCategory(mapiranjeKat("Nauka"))
                 val techNews = getTopStoriesByCategory(mapiranjeKat("Tehnologija"))
@@ -75,7 +79,7 @@ class NewsDAO {
         val timeSinceLastFetch = now - lastFetchTime
 
         if (timeSinceLastFetch < TimeUnit.SECONDS.toMillis(CACHE_DURATION_SECONDS)) {
-            // Vraćamo i featured i ne vijesti za ovu kat iz kesa
+            // Vraćamo i featured i ne vijesti za ovu kategoriju iz keša
             // Redoslijed će se sortirati u NewsFeedScreen
             return@withContext cachedNews.filter {
                 mapiranjeKat(it.category) == apiCategory
@@ -94,28 +98,28 @@ class NewsDAO {
         }
 
         val newStories = response.body()!!.data.map { it.toNewsItem(category) }
-            .filter { mapiranjeKat(it.category) == apiCategory } // Ensure category matches after mapping
+            .filter { mapiranjeKat(it.category) == apiCategory } // Provjerite da kategorija odgovara nakon mapiranja
             .take(3)
 
         updateCacheWithNewStories(apiCategory, newStories)
-        //ubaci nove featured u kes
+        // ubaci nove featured u keš
         lastFetchTimes[apiCategory] = now
 
-        // vratisve vijesti za odgg kategorijyx
+        // vrati sve vijesti za odgovarajuću kategoriju
         return@withContext cachedNews.filter {
             mapiranjeKat(it.category) == apiCategory
         }
     }
 
     private fun updateCacheWithNewStories(category: String, newStories: List<NewsItem>) {
-        // un-feature postojece news za given category
+        // poništi "featured" status postojećih vijesti za danu kategoriju
         val newsToUpdate = cachedNews.filter { mapiranjeKat(it.category) == category }.toMutableList()
 
         newsToUpdate.forEachIndexed { index, newsItem ->
             newsToUpdate[index] = newsItem.copy(isFeatured = false)
         }
 
-        // dodaj new stories kao featured  u listu
+        // dodaj nove vijesti kao featured u listu
         newStories.forEach { newStory ->
             val existingIndex = newsToUpdate.indexOfFirst { it.uuid == newStory.uuid }
             if (existingIndex != -1) {
@@ -130,7 +134,7 @@ class NewsDAO {
     }
 
     fun getAllStories(): List<NewsItem> {
-        return cachedNews.toList() //ne znam eto
+        return cachedNews.toList()
     }
     fun addNewsItem(newsItem: NewsItem) {
         if (cachedNews.none { it.uuid == newsItem.uuid }) {
@@ -158,9 +162,9 @@ class NewsDAO {
             return@withContext similar
         }
 
-        // vrati vijesti iz kesa ako ne
+        // vrati vijesti iz keša ako se ne dobiju sa servisa
         val current = cachedNews.find { it.uuid == uuid }
-            ?: throw InvalidUUIDException("Vijest s UUID $uuid nije nadjena u kesu")
+            ?: throw InvalidUUIDException("Vijest s UUID $uuid nije pronađena u kešu")
 
         val similar = cachedNews
             .filter { it.uuid != uuid && mapiranjeKat(it.category) == mapiranjeKat(current.category) }
@@ -170,4 +174,19 @@ class NewsDAO {
         return@withContext similar
     }
 
+    // Nova metoda: getHeadlinesBySource
+    suspend fun getHeadlinesBySource(sourceId: String): List<String> = withContext(Dispatchers.IO) {
+
+
+        val response = api.getNewsBySource(
+            apiToken = API_KEY,
+            sourceIds = sourceId
+        )
+
+
+            val headlines = response.data.mapNotNull { it.title }
+
+        return@withContext headlines
+
+    }
 }
