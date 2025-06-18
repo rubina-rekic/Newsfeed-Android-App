@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("org.jetbrains.kotlin.kapt") // Ovo je ispravno
 }
 
 android {
@@ -69,15 +70,19 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:2.3.5")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.5")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
-    //
+    // Retrofit, Gson
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation("com.squareup.retrofit2:retrofit:+")
-    implementation("com.squareup.retrofit2:converter-gson:+")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:???")
+    implementation("com.google.code.gson:gson:2.10.1") // DODANO
+    // Kotlin Coroutines - POPRAVLJENO
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
     //radi testova
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.squareup.okhttp3:okhttp-tls:4.12.0") // For TLS features like HeldCertificate
     androidTestImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+    //spirala 4 - Room
+    implementation ("androidx.room:room-runtime:2.7.0-beta01")
+    kapt ("androidx.room:room-compiler:2.7.0-beta01")
+    implementation ("androidx.room:room-ktx:2.7.0-beta01")
 
 }

@@ -1,6 +1,7 @@
 package etf.ri.rma.newsfeedapp.screen
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -13,24 +14,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 
-import etf.ri.rma.newsfeedapp.model.NewsItem
+ // Make sure this is present and correct
+
 import etf.ri.rma.newsfeedapp.data.network.NewsDAO
+import etf.ri.rma.newsfeedapp.model.NewsItem
 import etf.ri.rma.newsfeedapp.screen.Filter.ParametriF
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-
-/*fun mapiranjeZaNewsfeeds(mijenjamo: String): String {
-    return when (mijenjamo.lowercase(Locale.ROOT)) {
-        "sports" -> "Sport"
-        "politics" -> "Politika"
-        "science" -> "Nauka"
-        "health" -> "Zdravlje"
-        "tech" -> "Tehnologija"
-        "general" -> "Ostalo"
-        else -> mijenjamo
-    }
-}*/
 
 @SuppressLint("ContextCastToActivity")
 @Composable
@@ -38,34 +29,45 @@ fun NewsFeedScreen(
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
-    val newsDAO = NewsDAO()
-    var isLoading by remember { mutableStateOf(false) }
-    var newsWithTags by remember { mutableStateOf<List<NewsItem>>(emptyList()) }
+    val context = LocalContext.current
+    val applicationContext = context.applicationContext
 
-    val viewModel: Filter = viewModel(LocalContext.current as ComponentActivity)
+    // This should be remembered to ensure the same instance of NewsDAO is used
+    val newsDAO = remember { NewsDAO(applicationContext) }
+
+    val viewModel: Filter = viewModel(context as ComponentActivity)
     val filters by viewModel.filters
 
-    suspend fun fetchNewsForSelectedCategory(selectedFilterCategory: String) {
-        isLoading = true
-        try {
-            newsWithTags = newsDAO.getNewsWithTags(selectedFilterCategory)
-        } catch (e: Exception) {
-            newsWithTags = emptyList() //isprazni listu u slucaju greske skroz?
-        } finally {
-            isLoading = false
-        }
-    }
+    // --- CORRECT WAY TO COLLECT FLOW FROM A SUSPEND FUNCTION ---
+    // Instead of calling the suspend function directly within remember,
+    // we use LaunchedEffect to trigger the suspend function and then
+    // collect the resulting Flow.
 
-    LaunchedEffect(Unit) {
-        fetchNewsForSelectedCategory(filters.category ?: "Sve")
-    }
+    // State to hold the collected news items
+    val newsWithTags = remember { mutableStateListOf<NewsItem>() }
+    // State to track loading
+    var isLoading by remember { mutableStateOf(true) }
 
+    // Use LaunchedEffect to launch a coroutine when filters.category changes
+    // This coroutine will call the suspend function and then collect from the Flow
     LaunchedEffect(filters.category) {
-        if (filters.category != null) {
-            fetchNewsForSelectedCategory(filters.category!!)
-        }
+        Log.d("NewsFeedScreen", "LaunchedEffect triggered for category: ${filters.category}")
+        isLoading = true // Start loading when category changes
+
+        // Call the suspend function to get the Flow
+        val currentCategory = filters.category ?: "Sve"
+        newsDAO.getNewsWithTags(currentCategory)
+            .collect { fetchedList ->
+                // This 'collect' block will be executed whenever the Flow emits new data
+                newsWithTags.clear()
+                newsWithTags.addAll(fetchedList)
+                isLoading = false // Stop loading once data is received
+                Log.d("NewsFeedScreen", "Collected ${fetchedList.size} news items for category: $currentCategory")
+            }
     }
 
+
+    // --- The rest of your UI logic remains the same ---
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -96,10 +98,10 @@ fun NewsFeedScreen(
 
                 when (filterCategory) {
                     "nauka/tehnologija" -> {
-                        NewsDAO.mapiranjeKat(newsItemCategory) == NewsDAO.mapiranjeKat("science") ||
-                                NewsDAO.mapiranjeKat(newsItemCategory) == NewsDAO.mapiranjeKat("tech")
+                        newsDAO.mapiranjeKat(newsItemCategory) == newsDAO.mapiranjeKat("science") ||
+                                newsDAO.mapiranjeKat(newsItemCategory) == newsDAO.mapiranjeKat("tech")
                     }
-                    else -> NewsDAO.mapiranjeKat(newsItemCategory) == NewsDAO.mapiranjeKat(filterCategory)
+                    else -> newsDAO.mapiranjeKat(newsItemCategory) == newsDAO.mapiranjeKat(filterCategory)
                 }
             }
 
@@ -111,9 +113,10 @@ fun NewsFeedScreen(
                     val newsDate = LocalDate.parse(newsItem.publishedDate, formatter)
                     !newsDate.isBefore(start) && !newsDate.isAfter(end)
                 } catch (e: Exception) {
+                    Log.e("NewsFeedScreen", "Greška pri parsiranju datuma: ${e.message}", e)
                     false
                 }
-            } != false
+            } ?: true
 
             val unwantedWordsMatch = filters.nezeljeneRijeci.none { unwantedWord ->
                 newsItem.snippet.contains(unwantedWord, ignoreCase = true) ||
@@ -124,7 +127,7 @@ fun NewsFeedScreen(
         }
 
         val sortedAndFilteredNewsList = if (filters.category == "Sve") {
-            filteredNewsList.asReversed() // mejntejn originalnu "Sve" logiku (most recent prve)
+            filteredNewsList.asReversed()
         } else {
             filteredNewsList
                 .sortedWith(compareByDescending<NewsItem> { it.isFeatured }
@@ -137,12 +140,19 @@ fun NewsFeedScreen(
                     })
         }
 
-        if (isLoading) {
+        if (isLoading && sortedAndFilteredNewsList.isEmpty()) { // Show loading only if loading AND list is empty
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
+            }
+        } else if (sortedAndFilteredNewsList.isEmpty() && !isLoading) { // Show "No news" if not loading AND list is empty
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Nema pronađenih vijesti.", style = MaterialTheme.typography.bodyLarge)
             }
         } else {
             NewsList(
