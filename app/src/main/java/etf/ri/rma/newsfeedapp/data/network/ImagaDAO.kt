@@ -9,8 +9,8 @@ import etf.ri.rma.newsfeedapp.data.network.api.ImagaApiService
 import etf.ri.rma.newsfeedapp.data.network.exception.ImageTaggingException
 import etf.ri.rma.newsfeedapp.data.network.exception.InvalidImageURLException
 import etf.ri.rma.newsfeedapp.data.network.exception.NetworkException
-import etf.ri.rma.newsfeedapp.room.dao.SavedNewsDAO
-import etf.ri.rma.newsfeedapp.room.entities.NewsDatabase
+import etf.ri.rma.newsfeedapp.data.SavedNewsDAO
+import etf.ri.rma.newsfeedapp.data.NewsDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
@@ -29,7 +29,7 @@ class ImagaDAO(private val context: Context) { // Dodaj Context u konstruktor
     }
 
     // Inicijaliziraj Room DAO
-    private val savedNewsDAO: SavedNewsDAO = NewsDatabase.getDatabase(context).savedNewsDao()
+    private val savedNewsDAO: SavedNewsDAO = NewsDatabase.getDatabase(context).savedNewsDAO()
 
     fun setApiService(apiService: ImagaApiService) {
         api = apiService
@@ -48,7 +48,7 @@ class ImagaDAO(private val context: Context) { // Dodaj Context u konstruktor
 
         // 2. Provjeri bazu podataka
         try {
-            val dbTags = savedNewsDAO.getTagsForNews(newsId)
+            val dbTags = savedNewsDAO.getTags(newsId)
             if (dbTags.isNotEmpty()) {
                 imageTagsCache.put(imageURL, dbTags) // Dodaj u in-memory keš iz baze
                 return@withContext TaggingResult.Success(dbTags)

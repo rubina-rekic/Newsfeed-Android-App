@@ -1,4 +1,4 @@
-package etf.ri.rma.newsfeedapp.room.entities
+package etf.ri.rma.newsfeedapp.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

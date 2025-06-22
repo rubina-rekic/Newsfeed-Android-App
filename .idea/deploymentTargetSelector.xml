@@ -14,10 +14,10 @@
       <SelectionState runConfigName="testIfCacheingWorks2()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="testImaggaFailed()">
+      <SelectionState runConfigName="getTopNewsPolitikaDeepCompare()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="getTopNewsPolitikaDeepCompare()">
+      <SelectionState runConfigName="TestS4">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

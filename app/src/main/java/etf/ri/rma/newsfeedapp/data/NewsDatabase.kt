@@ -1,4 +1,4 @@
-package etf.ri.rma.newsfeedapp.room.entities
+package etf.ri.rma.newsfeedapp.data
 
 import android.content.Context
 import androidx.room.Database
@@ -9,7 +9,8 @@ import androidx.room.TypeConverters
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import etf.ri.rma.newsfeedapp.model.NewsItem
-import etf.ri.rma.newsfeedapp.room.dao.SavedNewsDAO
+import etf.ri.rma.newsfeedapp.model.NewsTagCrossRef
+import etf.ri.rma.newsfeedapp.model.Tag
 
 class Converters {
 
@@ -31,7 +32,7 @@ class Converters {
 @Database(entities = [NewsItem::class, Tag::class, NewsTagCrossRef::class], version = 2, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class NewsDatabase : RoomDatabase() {
-    abstract fun savedNewsDao(): SavedNewsDAO
+    abstract fun savedNewsDAO(): SavedNewsDAO
 
     companion object {
         @Volatile

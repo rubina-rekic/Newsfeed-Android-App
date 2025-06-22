@@ -1,8 +1,8 @@
-package etf.ri.rma.newsfeedapp.room.entities
+package etf.ri.rma.newsfeedapp.model
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import etf.ri.rma.newsfeedapp.model.NewsItem
+import etf.ri.rma.newsfeedapp.model.Tag
 
 @Entity(
     tableName = "NewsTags",
@@ -12,13 +12,13 @@ import etf.ri.rma.newsfeedapp.model.NewsItem
             entity = NewsItem::class,
             parentColumns = ["id"],
             childColumns = ["newsId"],
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.Companion.CASCADE
         ),
         ForeignKey(
             entity = Tag::class,
             parentColumns = ["id"],
             childColumns = ["tagId"],
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.Companion.CASCADE
         )
     ]
 )

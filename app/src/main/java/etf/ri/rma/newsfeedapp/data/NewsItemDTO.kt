@@ -24,32 +24,21 @@ import java.time.format.DateTimeFormatter
     val publishedDate: String
 )*/
 
-fun NewsItemDTO.toNewsItem(): NewsItem {
+fun NewsItemDTO.toNewsItem(categoryOverride: String? = null): NewsItem {
     return NewsItem(
         uuid = uuid,
         title = title,
         snippet = snippet,
         imageUrl = image_url,
-        category = categories.firstOrNull()?.lowercase().toString(),
-        isFeatured = false,
+        // Use categoryOverride if provided, otherwise fallback to DTO's first category, then "general"
+        category = categoryOverride ?: categories?.firstOrNull()?.lowercase() ?: "general",
+        isFeatured = false, // Default to false
         source = source,
         publishedDate = convertDateFormat(published_at),
-        imageTags = arrayListOf()
+        imageTags = arrayListOf() // Default empty list
     )
 }
-fun NewsItemDTO.toNewsItem(kategorija:String): NewsItem {
-    return NewsItem(
-        uuid = uuid,
-        title = title,
-        snippet = snippet,
-        imageUrl = image_url,
-        category = kategorija,
-        isFeatured = false,
-        source = source,
-        publishedDate = convertDateFormat(published_at),
-        imageTags = arrayListOf()
-    )
-}
+
 
 private fun convertDateFormat(isoDateString: String): String {
     return try {
