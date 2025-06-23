@@ -28,7 +28,6 @@ class Converters {
     }
 }
 
-// IMPORTANT: Increased version from 1 to 2
 @Database(entities = [NewsItem::class, Tag::class, NewsTagCrossRef::class], version = 2, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class NewsDatabase : RoomDatabase() {
@@ -45,7 +44,7 @@ abstract class NewsDatabase : RoomDatabase() {
                     NewsDatabase::class.java,
                     "news-db"
                 )
-                    .fallbackToDestructiveMigration() // IMPORTANT: Added this for development
+                    .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 instance

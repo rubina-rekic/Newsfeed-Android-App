@@ -81,7 +81,7 @@ interface SavedNewsDAO {
     }
 
     @Transaction
-    suspend fun saveNews(news: NewsItem): Boolean { // Accepts NewsItem directly
+    suspend fun saveNews(news: NewsItem): Boolean { // prima NewsItem
         val rowId = insertNews(news)
         return rowId != -1L
     }

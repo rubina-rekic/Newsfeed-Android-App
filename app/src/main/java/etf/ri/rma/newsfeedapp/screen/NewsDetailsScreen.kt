@@ -46,11 +46,9 @@ fun NewsDetailsScreen(
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
-    // Dohvati Context i ApplicationContext za DAO inicijalizaciju
     val context = LocalContext.current
     val applicationContext = context.applicationContext
 
-    // Inicijaliziraj DAO-e s Context-om. Koristi remember za efikasnost.
     val newsDAO = remember { NewsDAO(applicationContext) }
     val imagaDAO = remember { ImagaDAO(applicationContext) }
 
@@ -62,27 +60,24 @@ fun NewsDetailsScreen(
     var imageTags by remember { mutableStateOf<List<String>>(emptyList()) }
     var tagsErrorMessage by remember { mutableStateOf<String?>(null) }
 
-    // Stanja za slične vijesti
+    // Stanja za slicnnne vijesti
     var isLoadingSimilarStories by remember { mutableStateOf(false) }
     var similarStories by remember { mutableStateOf<List<NewsItem>>(emptyList()) }
     var similarStoriesErrorMessage by remember { mutableStateOf<String?>(null) }
 
     val scope = rememberCoroutineScope()
 
-    // Glavni LaunchedEffect koji se pokreće kada se newsId promijeni
     LaunchedEffect(newsId) {
-        // Prvo pokušaj dohvatiti glavnu vijest iz baze podataka
         val fetchedNews = newsDAO.getNewsByUuid(newsId)
 
         if (fetchedNews != null) {
-            newsItem = fetchedNews // Ažuriraj stanje s pronađenom vijesti
+            newsItem = fetchedNews
 
             // Ako je vijest pronađena, dohvati tagove slike
             if (!fetchedNews.imageUrl.isNullOrEmpty()) {
                 isLoadingTags = true
-                tagsErrorMessage = null // Resetiraj poruku o grešci za tagove
+                tagsErrorMessage = null // Resetiraj poruku o grešci
                 try {
-                    // Pozovi ImaggaDAO za dohvat tagova i proslijedi ID vijesti iz baze
                     when (val result = imagaDAO.getTags(fetchedNews.imageUrl!!, fetchedNews.id)) {
                         is TaggingResult.Success -> {
                             imageTags = result.tags
@@ -98,18 +93,16 @@ fun NewsDetailsScreen(
                     isLoadingTags = false
                 }
             } else {
-                // Ako nema URL-a slike, resetiraj tagove i poruke o greškama
                 imageTags = emptyList()
                 tagsErrorMessage = null
             }
 
-            // Zatim dohvati slične vijesti
             isLoadingSimilarStories = true
-            similarStoriesErrorMessage = null // Resetiraj poruku o grešci za slične vijesti
+            similarStoriesErrorMessage = null
             try {
                 val similar = newsDAO.getSimilarStories(newsId)
                 similarStories = similar
-                // Pohrani slične vijesti u bazu podataka, ako već nisu tamo
+                // Pohrani slične vijesti u bazu podataka, ako ih nema tam vec
                 similar.forEach { newsItem -> newsDAO.saveNews(newsItem) }
             } catch (e: Exception) {
                 similarStoriesErrorMessage = "Greška pri traženju sličnih vijesti: ${e.message}"
@@ -145,10 +138,9 @@ fun NewsDetailsScreen(
                 Text("Nazad")
             }
         }
-        return // Prekini izvršavanje Composablea ako vijest nije pronađena
+        return
     }
 
-    // Lambda funkcija za rukovanje Back pritiskom. Eksplicitno vraća Unit.
     val onBack: () -> Unit = {
         navController.popBackStack()
     }
@@ -309,7 +301,6 @@ fun NewsDetailsScreen(
 
         item {
             Spacer(modifier = Modifier.height(24.dp))
-            // Button koristi ispravnu onBack lambda funkciju koja vraća Unit
             Button(
                 onClick = onBack,
                 modifier = Modifier

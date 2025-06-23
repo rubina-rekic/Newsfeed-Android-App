@@ -32,42 +32,28 @@ fun NewsFeedScreen(
     val context = LocalContext.current
     val applicationContext = context.applicationContext
 
-    // This should be remembered to ensure the same instance of NewsDAO is used
     val newsDAO = remember { NewsDAO(applicationContext) }
 
     val viewModel: Filter = viewModel(context as ComponentActivity)
     val filters by viewModel.filters
 
-    // --- CORRECT WAY TO COLLECT FLOW FROM A SUSPEND FUNCTION ---
-    // Instead of calling the suspend function directly within remember,
-    // we use LaunchedEffect to trigger the suspend function and then
-    // collect the resulting Flow.
 
-    // State to hold the collected news items
     val newsWithTags = remember { mutableStateListOf<NewsItem>() }
-    // State to track loading
     var isLoading by remember { mutableStateOf(true) }
 
-    // Use LaunchedEffect to launch a coroutine when filters.category changes
-    // This coroutine will call the suspend function and then collect from the Flow
     LaunchedEffect(filters.category) {
         Log.d("NewsFeedScreen", "LaunchedEffect triggered for category: ${filters.category}")
-        isLoading = true // Start loading when category changes
+        isLoading = true
 
-        // Call the suspend function to get the Flow
         val currentCategory = filters.category ?: "Sve"
         newsDAO.getNewsWithTags(currentCategory)
             .collect { fetchedList ->
-                // This 'collect' block will be executed whenever the Flow emits new data
                 newsWithTags.clear()
                 newsWithTags.addAll(fetchedList)
-                isLoading = false // Stop loading once data is received
+                isLoading = false
                 Log.d("NewsFeedScreen", "Collected ${fetchedList.size} news items for category: $currentCategory")
             }
     }
-
-
-    // --- The rest of your UI logic remains the same ---
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -140,14 +126,14 @@ fun NewsFeedScreen(
                     })
         }
 
-        if (isLoading && sortedAndFilteredNewsList.isEmpty()) { // Show loading only if loading AND list is empty
+        if (isLoading && sortedAndFilteredNewsList.isEmpty()) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
             }
-        } else if (sortedAndFilteredNewsList.isEmpty() && !isLoading) { // Show "No news" if not loading AND list is empty
+        } else if (sortedAndFilteredNewsList.isEmpty() && !isLoading) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center

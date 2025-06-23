@@ -1,4 +1,3 @@
-// etf.ri.rma.newsfeedapp.data.network/NewsDAO.kt
 package etf.ri.rma.newsfeedapp.data.network
 
 import android.content.Context
@@ -8,12 +7,10 @@ import android.util.Log
 import etf.ri.rma.newsfeedapp.data.RetrofitInstance
 import etf.ri.rma.newsfeedapp.data.network.api.NewsApiService
 import etf.ri.rma.newsfeedapp.data.network.exception.InvalidUUIDException
-// Import the specific toNewsItem extension function from your data package
-import etf.ri.rma.newsfeedapp.data.toNewsItem // Ensure this imports your single extension
+import etf.ri.rma.newsfeedapp.data.toNewsItem
 import etf.ri.rma.newsfeedapp.model.NewsItem
 import etf.ri.rma.newsfeedapp.data.SavedNewsDAO
 import etf.ri.rma.newsfeedapp.data.NewsDatabase
-import etf.ri.rma.newsfeedapp.model.NewsItemDTO // Make sure NewsItemDTO is imported if used directly here
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -107,7 +104,6 @@ class NewsDAO(private val context: Context) {
         val response = api.getTopStoriesByCategory(apiToken = API_KEY, categories = apiCategory)
 
         if (response.isSuccessful && response.body() != null) {
-            // Explicitly pass apiCategory to the extension function
             val newStories = response.body()!!.data.map { it.toNewsItem(apiCategory) }
                 .filter { mapiranjeKat(it.category) == apiCategory }
                 .take(3)
@@ -138,7 +134,6 @@ class NewsDAO(private val context: Context) {
 
     suspend fun getSimilarNews(tags: List<String>): List<NewsItem> = withContext(Dispatchers.IO) {
         val tagsToSearch = tags.take(2)
-        // No .map { it.toNewsItem() } needed if DAO returns NewsItem directly
         savedNewsDAO.getSimilarNews(tagsToSearch)
     }
 
@@ -157,7 +152,6 @@ class NewsDAO(private val context: Context) {
             try {
                 val response = api.getSimilarStories(uuid = uuid, apiToken = API_KEY)
                 if (response.isSuccessful && response.body() != null) {
-                    // Explicitly pass null to the extension function for similar stories
                     val similar = response.body()!!.data.map { it.toNewsItem(null) }.take(2)
                     similar.forEach { newsItem -> saveNews(newsItem) }
                     return@withContext similar
@@ -174,7 +168,6 @@ class NewsDAO(private val context: Context) {
             }
 
         val tagsForCurrentNews = savedNewsDAO.getTags(newsFromDb.id)
-        // No .map { it.toNewsItem() } needed as savedNewsDAO.getSimilarNews returns List<NewsItem>
         savedNewsDAO.getSimilarNews(tagsForCurrentNews).filter { it.uuid != uuid }
     }
 }

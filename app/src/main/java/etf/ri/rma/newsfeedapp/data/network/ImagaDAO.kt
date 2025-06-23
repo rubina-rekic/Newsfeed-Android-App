@@ -21,21 +21,19 @@ sealed class TaggingResult {
     data class Error(val exception: Exception) : TaggingResult()
 }
 
-class ImagaDAO(private val context: Context) { // Dodaj Context u konstruktor
+class ImagaDAO(private val context: Context) {
 
     companion object {
         private var api: ImagaApiService = RetrofitInstance.imageApi
         private val imageTagsCache = LruCache<String, List<String>>(100)
     }
 
-    // Inicijaliziraj Room DAO
     private val savedNewsDAO: SavedNewsDAO = NewsDatabase.getDatabase(context).savedNewsDAO()
 
     fun setApiService(apiService: ImagaApiService) {
         api = apiService
     }
 
-    // Dodaj newsId kao parametar jer ti treba za spremanje tagova u bazu
     suspend fun getTags(imageURL: String, newsId: Int): TaggingResult = withContext(Dispatchers.IO) {
         if (!Patterns.WEB_URL.matcher(imageURL).matches()) {
             return@withContext TaggingResult.Error(InvalidImageURLException("Invalid image URL: $imageURL"))
@@ -54,7 +52,6 @@ class ImagaDAO(private val context: Context) { // Dodaj Context u konstruktor
                 return@withContext TaggingResult.Success(dbTags)
             }
         } catch (e: Exception) {
-            // Logiraj grešku, ali nastavi s API pozivom ako čitanje iz baze ne uspije
             e.printStackTrace()
         }
 
