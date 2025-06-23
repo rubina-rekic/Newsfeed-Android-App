@@ -2,14 +2,18 @@ package etf.ri.rma.newsfeedapp.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
 
 @Serializable
-@Entity(tableName = "news")
+@Entity(
+    tableName = "news",
+    indices = [Index(value = ["uuid"], unique = true)] // <<-- Dodajte ovaj redak!
+)
 data class NewsItem(
-    @PrimaryKey(autoGenerate = true) var id: Int = 0, // Auto-incrementing primary key
-    @ColumnInfo(name = "uuid") var uuid: String,
+    @PrimaryKey(autoGenerate = true) var id: Int = 0, // Ova kolona je auto-increment i koristi se za relacije
+    @ColumnInfo(name = "uuid") var uuid: String, // Ova kolona mora biti jedinstvena
     @ColumnInfo(name = "title") var title: String,
     @ColumnInfo(name = "snippet") var snippet: String,
     @ColumnInfo(name = "imageUrl") var imageUrl: String?,
@@ -17,5 +21,5 @@ data class NewsItem(
     @ColumnInfo(name = "isFeatured") var isFeatured: Boolean,
     @ColumnInfo(name = "source") var source: String,
     @ColumnInfo(name = "publishedDate") var publishedDate: String,
-    var imageTags: ArrayList<String> = arrayListOf() // Use @Transient for non-persisted fields
+     var imageTags: ArrayList<String> = arrayListOf() // @Transient jer se ne mapira direktno u kolonu
 )
