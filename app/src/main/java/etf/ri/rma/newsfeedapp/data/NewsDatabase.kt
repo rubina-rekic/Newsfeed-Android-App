@@ -13,20 +13,25 @@ import etf.ri.rma.newsfeedapp.model.NewsTagCrossRef
 import etf.ri.rma.newsfeedapp.model.Tag
 
 class Converters {
-
+    // Ovo su sada ispravni TypeConverter-i za List<Tag>
     @TypeConverter
-    fun fromStringList(list: ArrayList<String>?): String? {
-        if (list == null) return null
-        return Gson().toJson(list)
+    fun fromTagList(tags: List<Tag>?): String? {
+        if (tags == null) {
+            return null
+        }
+        val gson = Gson()
+        return gson.toJson(tags)
     }
 
     @TypeConverter
-    fun toStringList(jsonString: String?): ArrayList<String>? {
-        if (jsonString == null) return null
-        val type = object : TypeToken<ArrayList<String>>() {}.type
-        return Gson().fromJson(jsonString, type)
-    }
-}
+    fun toTagList(tagsString: String?): List<Tag>? {
+        if (tagsString == null) {
+            return null
+        }
+        val gson = Gson()
+        val type = object : TypeToken<List<Tag>>() {}.type
+        return gson.fromJson(tagsString, type)
+    }}
 
 @Database(entities = [NewsItem::class, Tag::class, NewsTagCrossRef::class], version = 2, exportSchema = false)
 @TypeConverters(Converters::class)

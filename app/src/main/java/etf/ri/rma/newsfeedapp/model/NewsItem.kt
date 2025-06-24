@@ -21,5 +21,5 @@ data class NewsItem(
     @ColumnInfo(name = "isFeatured") var isFeatured: Boolean,
     @ColumnInfo(name = "source") var source: String,
     @ColumnInfo(name = "publishedDate") var publishedDate: String,
-     var imageTags: ArrayList<String> = arrayListOf()
+    var imageTags: List<Tag> = emptyList()
 )

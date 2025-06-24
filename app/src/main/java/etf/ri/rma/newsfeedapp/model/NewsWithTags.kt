@@ -19,6 +19,6 @@ data class NewsWithTags(
 ) {
 
     fun toNewsItem(): NewsItem {
-        return newsItem.copy(imageTags = ArrayList(imageTags.map { it.value }))
+        return newsItem.copy(imageTags = this.imageTags)
     }
 }

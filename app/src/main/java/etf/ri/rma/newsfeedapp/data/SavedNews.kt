@@ -41,8 +41,13 @@ interface SavedNewsDAO {
 
 
     @Transaction
-    @Query("SELECT * FROM News") //  "News"
-    suspend fun allNews(): List<NewsWithTags>
+    @Query("SELECT * FROM News")
+    suspend fun getAllNewsWithTagsInternal(): List<NewsWithTags>
+
+    suspend fun allNews(): List<NewsItem> {
+        return getAllNewsWithTagsInternal().map { it.toNewsItem() }
+    }
+
     @Query("UPDATE News SET isFeatured = :isFeatured WHERE uuid = :uuid")
     suspend fun updateNewsIsFeatured(uuid: String, isFeatured: Boolean)
     @Query("UPDATE News SET isFeatured = 0")
@@ -50,7 +55,11 @@ interface SavedNewsDAO {
 
     @Transaction
     @Query("SELECT * FROM News WHERE category = :category")
-    suspend fun getNewsWithCategory(category: String): List<NewsWithTags>
+    suspend fun _getNewsWithCategoryInternal(category: String): List<NewsWithTags>
+
+    suspend fun getNewsWithCategory(category: String): List<NewsItem> {
+        return _getNewsWithCategoryInternal(category).map { it.toNewsItem() }
+    }
 
     @Query("SELECT id FROM Tags WHERE value = :tagValue LIMIT 1")
     suspend fun getTagIdByValue(tagValue: String): Int?

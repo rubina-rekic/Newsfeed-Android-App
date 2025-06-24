@@ -136,7 +136,7 @@ class NewsDAO(private val context: Context) {
                 .take(3) // Uvijek uzimamo samo 3 najnovije za featured
 
             // Resetuj isFeatured status za sve vijesti koje pripadaju OVOJ kategoriji
-            val currentCategoryNews = savedNewsDAO.getNewsWithCategory(apiCategory).map { it.toNewsItem() }
+            val currentCategoryNews = savedNewsDAO.getNewsWithCategory(apiCategory)
             currentCategoryNews.forEach { newsItem ->
                 if (!newStoriesFromApi.any { it.uuid == newsItem.uuid }) { // Ako vijest nije u novim 3, postavi je na false
                     savedNewsDAO.updateNewsIsFeatured(newsItem.uuid, false)
