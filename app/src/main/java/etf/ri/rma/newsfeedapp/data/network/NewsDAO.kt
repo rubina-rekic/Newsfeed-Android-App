@@ -25,7 +25,7 @@ class NewsDAO(private val context: Context) {
     companion object {
         private var api: NewsApiService = RetrofitInstance.api
         private const val API_KEY = "V61eDUFrmQScTsKyZtAWu6rfybY5NNXljUtCCCEQ"
-        private const val CACHE_DURATION_SECONDS = 30L // Promijenjeno na 30 sekundi
+        private const val CACHE_DURATION_SECONDS = 30L //30 sekundi
         private const val LAST_FETCH_TIME_KEY_PREFIX = "last_fetch_"
         private const val TAG = "NewsDAO"
     }
@@ -147,14 +147,12 @@ class NewsDAO(private val context: Context) {
             newStoriesFromApi.forEach { newsItem ->
                 val existingNews = savedNewsDAO.getNewsByUuid(newsItem.uuid)
                 if (existingNews == null) {
-                    // Vijest ne postoji, ubaci je kao featured
                     val insertedId = savedNewsDAO.insertNews(newsItem.copy(isFeatured = true))
                     if (insertedId != -1L) {
                         Log.d(TAG, "Nova featured vijest s UUID ${newsItem.uuid} u kategoriji $apiCategory, id: $insertedId")
                         featuredUuidsForThisFetch.add(newsItem.uuid)
                     }
                 } else {
-                    // Vijest postoji, ažuriraj je kao featured
                     savedNewsDAO.updateNewsIsFeatured(newsItem.uuid, true)
                     Log.d(TAG, "Postojeća vijest s UUID ${newsItem.uuid} ažurirana na featured.")
                     featuredUuidsForThisFetch.add(newsItem.uuid)

@@ -110,8 +110,6 @@ fun NewsFeedScreen(
             categoryMatches && dateMatches && unwantedWordsMatch
         }
 
-        // Sortiranje se sada dešava uglavnom unutar NewsDAO ili Flow-a.
-        // Ovdje više ne trebamo složeno sortiranje.
         val finalNewsList = filteredNewsList
 
         if (isLoading && finalNewsList.isEmpty()) {
