@@ -43,6 +43,10 @@ interface SavedNewsDAO {
     @Transaction
     @Query("SELECT * FROM News") //  "News"
     suspend fun allNews(): List<NewsWithTags>
+    @Query("UPDATE News SET isFeatured = :isFeatured WHERE uuid = :uuid")
+    suspend fun updateNewsIsFeatured(uuid: String, isFeatured: Boolean)
+    @Query("UPDATE News SET isFeatured = 0")
+    suspend fun resetAllFeaturedStatus()
 
     @Transaction
     @Query("SELECT * FROM News WHERE category = :category")

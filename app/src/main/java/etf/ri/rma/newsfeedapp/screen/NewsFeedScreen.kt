@@ -14,8 +14,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 
- // Make sure this is present and correct
-
 import etf.ri.rma.newsfeedapp.data.network.NewsDAO
 import etf.ri.rma.newsfeedapp.model.NewsItem
 import etf.ri.rma.newsfeedapp.screen.Filter.ParametriF
@@ -112,28 +110,18 @@ fun NewsFeedScreen(
             categoryMatches && dateMatches && unwantedWordsMatch
         }
 
-        val sortedAndFilteredNewsList = if (filters.category == "Sve") {
-            filteredNewsList.asReversed()
-        } else {
-            filteredNewsList
-                .sortedWith(compareByDescending<NewsItem> { it.isFeatured }
-                    .thenByDescending {
-                        try {
-                            LocalDate.parse(it.publishedDate, DateTimeFormatter.ofPattern("dd-MM-yyyy"))
-                        } catch (e: Exception) {
-                            LocalDate.MIN
-                        }
-                    })
-        }
+        // Sortiranje se sada dešava uglavnom unutar NewsDAO ili Flow-a.
+        // Ovdje više ne trebamo složeno sortiranje.
+        val finalNewsList = filteredNewsList
 
-        if (isLoading && sortedAndFilteredNewsList.isEmpty()) {
+        if (isLoading && finalNewsList.isEmpty()) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
             }
-        } else if (sortedAndFilteredNewsList.isEmpty() && !isLoading) {
+        } else if (finalNewsList.isEmpty() && !isLoading) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -142,7 +130,7 @@ fun NewsFeedScreen(
             }
         } else {
             NewsList(
-                newsList = sortedAndFilteredNewsList,
+                newsList = finalNewsList,
                 category = filters.category ?: "Sve",
                 navController = navController
             )
