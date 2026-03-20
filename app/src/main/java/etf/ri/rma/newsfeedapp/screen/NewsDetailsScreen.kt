@@ -67,6 +67,13 @@ fun NewsDetailsScreen(
 
     val scope = rememberCoroutineScope()
 
+    var similarStories by remember { mutableStateOf<List<NewsItem>>(emptyList()) }
+    var slicneVijesti by remember { mutableStateOf(false) }
+
+    // New state variables for headlines from the same source
+    var isLoadingHeadlines by remember { mutableStateOf(false) }
+    var headlinesFromSource by remember { mutableStateOf<List<String>>(emptyList()) }
+
     LaunchedEffect(newsId) {
         val fetchedNews = newsDAO.getNewsByUuid(newsId)
 
@@ -97,6 +104,42 @@ fun NewsDetailsScreen(
                 tagsErrorMessage = null
             }
 
+            // for loading tags
+            if (!newsItem.imageUrl.isNullOrEmpty()) {
+                scope.launch {
+                    isLoadingTags = true
+                    try {
+                        when (val result = imagaDAO.getTags(newsItem.imageUrl)) {
+                            is TaggingResult.Success -> {
+                                tagovikojeKESIRAM = result.tags
+                            }
+                            is TaggingResult.Error -> {
+                                porukaGreske = (porukaGreske ?: "") + "\nGreška pri učitavanju tagova: ${result.exception.message}"
+                            }
+                        }
+                    } catch (e: Exception) {
+                        porukaGreske =  "Nepoznata greska pri ucitavanju tagova!"
+                    } finally {
+                        isLoadingTags = false
+                    }
+                }
+            }
+
+
+            if (newsItem.source.isNotEmpty()) {
+                scope.launch {
+                    isLoadingHeadlines = true
+                    try {
+                        val headlines = newsDAO.getHeadlinesBySource(newsItem.source)
+                        headlinesFromSource = headlines
+                    } catch (e: Exception) {
+
+
+                    } finally {
+                        isLoadingHeadlines = false
+                    }
+                }
+            }
             isLoadingSimilarStories = true
             similarStoriesErrorMessage = null
             try {
@@ -183,6 +226,7 @@ fun NewsDetailsScreen(
 
             // Prikaz kategorije, izvora i datuma objave
             Text(
+                text = "Kategorija: ${newsItem.category}",
                 text = "Kategorija: ${newsItem!!.category}",
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.testTag("details_category")
@@ -203,6 +247,7 @@ fun NewsDetailsScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Display tags
             // Prikaz statusa učitavanja ili greške za tagove
             if (isLoadingTags) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -233,6 +278,7 @@ fun NewsDetailsScreen(
                     modifier = Modifier.testTag("image_tags")
                 )
                 Spacer(modifier = Modifier.height(16.dp))
+            } else if (!newsItem.imageUrl.isNullOrEmpty()) {
             } else if (!newsItem!!.imageUrl.isNullOrEmpty()) {
                 Text(
                     text = "Tagovi slike nisu pronađeni.",
@@ -276,6 +322,7 @@ fun NewsDetailsScreen(
             }
         }
 
+        // Display similar stories
         // Prikaz liste sličnih vijesti
         items(similarStories.size) { index ->
             val relatedItem = similarStories[index]
@@ -299,7 +346,43 @@ fun NewsDetailsScreen(
             }
         }
 
+        // New section for headlines from the same source
         item {
+            Spacer(modifier = Modifier.height(24.dp))
+            Text(
+                text = "Naslovi vijesti iz istog izvora",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            if (isLoadingHeadlines) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = "Učitavanje naslova iz izvora...", style = MaterialTheme.typography.bodySmall)
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            } else if (headlinesFromSource.isNotEmpty()) {
+                Column {
+                    headlinesFromSource.forEachIndexed { index, headline ->
+                        Text(
+                            text = "- $headline",
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp)
+                                .testTag("headline_from_source_${index + 1}")
+                        )
+                    }
+                }
+            } else {
+                Text(
+                    text = "Nema naslova iz istog izvora.",
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.testTag("no_headlines_from_source")
+                )
+            }
+
             Spacer(modifier = Modifier.height(24.dp))
             Button(
                 onClick = onBack,

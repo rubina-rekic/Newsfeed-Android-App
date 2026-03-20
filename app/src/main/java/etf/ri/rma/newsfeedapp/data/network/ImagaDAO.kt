@@ -61,6 +61,8 @@ class ImagaDAO(private val context: Context) {
 
             if (response.isSuccessful) {
                 val tags = response.body()?.result?.tags?.map { it.tag.en } ?: emptyList()
+                imageTagsCache.put(imageURL, tags) // a kesiraj tagove
+                return@withContext TaggingResult.Success(tags)
                 imageTagsCache.put(imageURL, tags) // Keširaj API rezultat
 
                 // Spremi tagove u bazu podataka NAKON uspješnog API poziva

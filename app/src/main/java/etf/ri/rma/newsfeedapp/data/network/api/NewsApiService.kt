@@ -21,6 +21,13 @@ interface NewsApiService {
         @Query("api_token") apiToken: String,
         @Query("limit") limit: Int = 2,
     ): Response<NewsResponse>
+
+    @GET("v1/news/top")
+    suspend fun getNewsBySource(
+        @Query("api_token") apiToken: String,
+        @Query("domains") sourceIds: String,
+        @Query("limit") limit: Int = 10
+    ): NewsResponse
 }
 
 
